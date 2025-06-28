@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="670.0" prefWidth="918.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.metenkanich.fastfoodkiosk.presentation.controller.OrdersController">
+  <children>
+    <HBox layoutX="10.0" layoutY="10.0" prefHeight="26.0" prefWidth="898.0" spacing="10.0">
+      <children>
+        <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+          <image>
+            <Image url="@../data/search.png" />
+          </image>
+        </ImageView>
+        <TextField fx:id="searchTextField" prefHeight="30.0" prefWidth="648.0" promptText="Пошук замовлення..." style="-fx-border-radius: 0;" styleClass="search" stylesheets="@../design/style.css">
+          <font>
+            <Font size="14.0" />
+          </font>
+        </TextField>
+        <ComboBox fx:id="statusComboBox" prefHeight="26.0" prefWidth="184.0" promptText="Виберіть статус">
+          <items>
+            <FXCollections fx:factory="observableArrayList">
+              <String fx:value="Усі статуси" />
+              <String fx:value="PENDING" />
+              <String fx:value="CONFIRMED" />
+              <String fx:value="DELIVERED" />
+              <String fx:value="CANCELLED" />
+            </FXCollections>
+          </items>
+          <value>
+            <String fx:value="Усі статуси" />
+          </value>
+        </ComboBox>
+      </children>
+    </HBox>
+    <Label fx:id="messageLabel" layoutX="42.0" layoutY="60.0" prefHeight="30.0" prefWidth="866.0" style="-fx-text-fill: red;">
+      <font>
+        <Font size="14.0" />
+      </font>
+    </Label>
+    <ScrollPane fx:id="ordersScrollPane" layoutX="10.0" layoutY="67.0" prefHeight="598.0" prefWidth="898.0">
+      <content>
+        <TableView fx:id="ordersTableView" prefHeight="598.0" prefWidth="890.0" styleClass="orders-table" stylesheets="@../design/style.css" tableMenuButtonVisible="true">
+          <columns>
+            <TableColumn fx:id="phoneColumn" prefWidth="124.0" text="Номер телефону">
+              <cellValueFactory>
+                <PropertyValueFactory property="phoneNumber" />
+              </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="orderDateColumn" prefWidth="150.0" text="Дата">
+              <cellValueFactory>
+                <PropertyValueFactory property="orderDate" />
+              </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="totalAmountColumn" prefWidth="100.0" text="Сума">
+              <cellValueFactory>
+                <PropertyValueFactory property="totalAmount" />
+              </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="statusColumn" prefWidth="100.0" text="Статус">
+              <cellValueFactory>
+                <PropertyValueFactory property="status" />
+              </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="deliveryAddressColumn" prefWidth="150.0" text="Адреса доставки">
+              <cellValueFactory>
+                <PropertyValueFactory property="deliveryAddress" />
+              </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="notesColumn" prefWidth="150.0" text="Примітки">
+              <cellValueFactory>
+                <PropertyValueFactory property="notes" />
+              </cellValueFactory>
+            </TableColumn>
+            <TableColumn fx:id="detailsColumn" prefWidth="91.2000732421875" text="Дії" /> <!-- Зменшено ширину, але можна адаптувати -->
+          </columns>
+        </TableView>
+      </content>
+    </ScrollPane>
+  </children>
+</AnchorPane>

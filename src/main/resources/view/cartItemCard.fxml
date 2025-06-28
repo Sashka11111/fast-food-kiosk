@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="338" maxWidth="568" minHeight="-Infinity" minWidth="-Infinity" prefHeight="287.0" prefWidth="200.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.metenkanich.fastfoodkiosk.presentation.controller.CartItemCard">
+  <children>
+    <ImageView fx:id="menuImage" fitHeight="100.0" fitWidth="100.0" layoutX="50.0" layoutY="8.0" preserveRatio="true">
+      <image>
+        <Image url="@../data/ingredients.png" />
+      </image>
+    </ImageView>
+    <Label fx:id="menuItemName" alignment="CENTER" layoutX="20.0" layoutY="117.0" prefHeight="30.0" prefWidth="160.0" style="-fx-wrap-text: true; -fx-font-size: 14px; -fx-font-weight: bold;" textAlignment="CENTER" />
+    <Label fx:id="menuItemPrice" alignment="CENTER" layoutX="9.0" layoutY="147.0" prefHeight="20.0" prefWidth="182.0" style="-fx-text-fill: #ec7c39; -fx-font-size: 12px;" text="0.00 грн" textAlignment="CENTER" />
+    <Button fx:id="deleteFromCartButton" layoutX="15.0" layoutY="249.0" prefHeight="30.0" prefWidth="169.0" styleClass="side-btn" stylesheets="@../design/style.css" text="Видалити з кошика" textFill="WHITE">
+      <font>
+        <Font size="14.0" />
+      </font>
+    </Button>
+    <Label fx:id="menuItemCalories" alignment="CENTER" layoutX="9.0" layoutY="167.0" prefHeight="20.0" prefWidth="182.0" style="-fx-text-fill: #666666; -fx-font-size: 10px;" text="0 ккал" textAlignment="CENTER" />
+    <Button layoutX="15.0" layoutY="207.0" onAction="#showDetails" prefHeight="30.0" prefWidth="170.0" styleClass="side-btn" stylesheets="@../design/style.css" text="Переглянути" textFill="WHITE">
+      <font>
+        <Font size="14.0" />
+      </font>
+    </Button>
+    <Label fx:id="quantityLabel" alignment="CENTER" layoutX="9.0" layoutY="187.0" prefHeight="20.0" prefWidth="182.0" style="-fx-text-fill: #666666; -fx-font-size: 12px;" text="Кількість: 0" textAlignment="CENTER" />
+  </children>
+</AnchorPane>
