@@ -13,44 +13,44 @@ import javafx.stage.StageStyle;
 
 public class AlertController {
 
-  @FXML
-  private Label messageLabel;
-  @FXML
-  private Button closeButton;
+    @FXML
+    private Label messageLabel;
+    @FXML
+    private Button closeButton;
 
-  private Stage stage;
-  @FXML
-  void initialize() {
-    closeButton.setOnAction(event -> stage.close());
-  }
-  @FXML
-  private void handleOkAction() {
-    stage.close();
-  }
-
-  public void setStage(Stage stage) {
-    this.stage = stage;
-  }
-
-  public void setMessage(String message) {
-    messageLabel.setText(message);
-  }
-
-  public static void showAlert( String message) {
-    try {
-      FXMLLoader loader = new FXMLLoader(AlertController.class.getResource("/view/alert.fxml"));
-      AnchorPane root = loader.load();
-      AlertController controller = loader.getController();
-      Stage stage = new Stage();
-      stage.initModality(Modality.APPLICATION_MODAL);
-      stage.initStyle(StageStyle.UNDECORATED);
-      Scene scene = new Scene(root);
-      stage.setScene(scene);
-      controller.setStage(stage);
-      controller.setMessage(message);
-      stage.showAndWait();
-    } catch (IOException e) {
-      e.printStackTrace();
+    private Stage stage;
+    @FXML
+    void initialize() {
+        closeButton.setOnAction(event -> stage.close());
     }
-  }
+    @FXML
+    private void handleOkAction() {
+        stage.close();
+    }
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
+    public void setMessage(String message) {
+        messageLabel.setText(message);
+    }
+
+    public static void showAlert( String message) {
+        try {
+            FXMLLoader loader = new FXMLLoader(AlertController.class.getResource("/view/alert.fxml"));
+            AnchorPane root = loader.load();
+            AlertController controller = loader.getController();
+            Stage stage = new Stage();
+            stage.initModality(Modality.APPLICATION_MODAL);
+            stage.initStyle(StageStyle.UNDECORATED);
+            Scene scene = new Scene(root);
+            stage.setScene(scene);
+            controller.setStage(stage);
+            controller.setMessage(message);
+            stage.showAndWait();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 }

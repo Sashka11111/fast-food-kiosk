@@ -3,35 +3,20 @@ package com.metenkanich.fastfoodkiosk.domain.security;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Клас для хешування паролю за допомогою алгоритму SHA-256.
- */
 public class PasswordHashing {
 
   private static PasswordHashing instance;
 
-  /**
-   * Приватний конструктор класу.
-   */
   private PasswordHashing() {
   }
-  /**
-   * Метод, який повертає єдиний екземпляр класу PasswordHashing.
-   *
-   * @return єдиний екземпляр класу PasswordHashing
-   */
+
   public static PasswordHashing getInstance() {
     if (instance == null) {
       instance = new PasswordHashing();
     }
     return instance;
   }
-  /**
-   * Метод для генерації хешу пароля.
-   *
-   * @param password пароль, який потрібно захешувати
-   * @return хешоване значення пароля
-   */
+
   public String hashedPassword(String password) {
     try {
       MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");

@@ -74,8 +74,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
   @Override
   public Category save(Category category) {
     String query = category.categoryId() == null
-        ? "INSERT INTO Categories (category_id, category_name) VALUES (?, ?)"
-        : "UPDATE Categories SET category_name = ? WHERE category_id = ?";
+        ? "INSERT INTO Categories (category_id, category_name, image_path) VALUES (?, ?, ?)"
+        : "UPDATE Categories SET category_name = ?, image_path = ? WHERE category_id = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
       UUID id = category.categoryId() == null ? UUID.randomUUID() : category.categoryId();
@@ -84,11 +84,12 @@ public class CategoryRepositoryImpl implements CategoryRepository {
         preparedStatement.setString(index++, id.toString());
       }
       preparedStatement.setString(index++, category.categoryName());
+      preparedStatement.setString(index++, category.imagePath());
       if (category.categoryId() != null) {
         preparedStatement.setString(index, id.toString());
       }
       preparedStatement.executeUpdate();
-      return new Category(id, category.categoryName());
+      return new Category(id, category.categoryName(), category.imagePath());
     } catch (SQLException e) {
       e.printStackTrace();
       return null;
@@ -113,7 +114,8 @@ public class CategoryRepositoryImpl implements CategoryRepository {
   private Category mapToCategory(ResultSet resultSet) throws SQLException {
     return new Category(
         UUID.fromString(resultSet.getString("category_id")),
-        resultSet.getString("category_name")
+        resultSet.getString("category_name"),
+        resultSet.getString("image_path")
     );
   }
 }

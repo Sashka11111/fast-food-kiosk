@@ -1,7 +1,7 @@
 package com.metenkanich.fastfoodkiosk.persistence.entity;
 
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.Role;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record User(
@@ -10,7 +10,7 @@ public record User(
     String password,
     Role role,
     String email,
-    ZonedDateTime createdAt
+    LocalDateTime createdAt
 ) implements Entity, Comparable<User> {
   @Override
   public int compareTo(User o) {

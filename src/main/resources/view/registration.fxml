@@ -30,7 +30,7 @@
           <graphic>
             <ImageView fitHeight="24.0" fitWidth="27.0" pickOnBounds="true" preserveRatio="true">
               <image>
-                <Image url="@../data/close.png" />
+                <Image url="@../images/close.png" />
               </image>
             </ImageView>
           </graphic>
@@ -61,11 +61,25 @@
     </AnchorPane>
     <AnchorPane prefHeight="500.0" prefWidth="334.0">
       <children>
-        <ImageView fitHeight="500.0" fitWidth="334.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="500.0" fitWidth="334.0" pickOnBounds="true" preserveRatio="true" style="-fx-opacity: 0.6;">
           <image>
-            <Image url="@../data/auth.jpg" />
+            <Image url="@../images/auth.jpg" />
           </image>
         </ImageView>
+        <AnchorPane prefHeight="500.0" prefWidth="333.0" style="-fx-background-color: black; -fx-opacity: 0.6;">
+          <children>
+            <Label layoutX="39.0" layoutY="56.0" text="Ласкаво просимо!" textFill="WHITE">
+              <font>
+                <Font name="System Bold" size="30.0" />
+              </font>
+            </Label>
+            <Label layoutX="39.0" layoutY="102.0" prefHeight="60.0" prefWidth="238.0" text="Скучили за улюбленими смаками? Tap &amp; Eat усе просто: обирайте, замовляйте — і насолоджуйтесь! " textFill="WHITE" wrapText="true">
+              <font>
+                <Font name="Segoe UI" size="14.0" />
+              </font>
+            </Label>
+          </children>
+        </AnchorPane>
       </children>
     </AnchorPane>
   </children>

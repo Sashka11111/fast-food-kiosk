@@ -33,13 +33,13 @@
             <Font size="14.0" />
           </font>
         </Button>
-            <TextArea fx:id="deliveryAddressArea" layoutX="9.0" layoutY="120.0" prefHeight="140.0" prefWidth="218.0" />
-            <TextArea fx:id="notesArea" layoutX="10.0" layoutY="284.0" prefHeight="140.0" prefWidth="218.0" />
-            <TextField fx:id="phoneNumberField" layoutX="14.0" layoutY="457.0" prefHeight="40.0" prefWidth="218.0">
-               <font>
-                  <Font size="14.0" />
-               </font>
-            </TextField>
+        <TextArea fx:id="deliveryAddressArea" layoutX="9.0" layoutY="120.0" prefHeight="140.0" prefWidth="218.0" />
+        <TextArea fx:id="notesArea" layoutX="10.0" layoutY="284.0" prefHeight="140.0" prefWidth="218.0" />
+        <TextField fx:id="phoneNumberField" layoutX="14.0" layoutY="457.0" prefHeight="40.0" prefWidth="218.0">
+          <font>
+            <Font size="14.0" />
+          </font>
+        </TextField>
       </children>
     </AnchorPane>
   </children>

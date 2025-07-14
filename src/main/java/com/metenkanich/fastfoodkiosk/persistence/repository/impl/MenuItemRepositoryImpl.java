@@ -2,6 +2,7 @@ package com.metenkanich.fastfoodkiosk.persistence.repository.impl;
 
 import com.metenkanich.fastfoodkiosk.domain.exception.EntityNotFoundException;
 import com.metenkanich.fastfoodkiosk.persistence.entity.MenuItem;
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PortionSize;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.MenuItemRepository;
 
 import java.math.BigDecimal;
@@ -27,7 +28,7 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
         String query = "SELECT * FROM MenuItems WHERE item_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, id.toString());
+            preparedStatement.setObject(1, id, Types.OTHER); // Use setObject for UUID
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapToMenuItem(resultSet);
@@ -69,7 +70,25 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
                 menuItems.add(mapToMenuItem(resultSet));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new RuntimeException("Помилка під час отримання всіх пунктів меню", e);
+        }
+        return menuItems;
+    }
+
+    @Override
+    public List<MenuItem> findByCategory(UUID categoryId) {
+        List<MenuItem> menuItems = new ArrayList<>();
+        String query = "SELECT * FROM MenuItems WHERE category_id = ?";
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setObject(1, categoryId, Types.OTHER); // Use setObject for UUID
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    menuItems.add(mapToMenuItem(resultSet));
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Помилка під час пошуку пунктів меню за категорією " + categoryId, e);
         }
         return menuItems;
     }
@@ -77,14 +96,14 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
     @Override
     public MenuItem save(MenuItem menuItem) {
         String query = menuItem.itemId() == null
-            ? "INSERT INTO MenuItems (item_id, name, description, price, category_id, is_available, image) VALUES (?, ?, ?, ?, ?, ?, ?)"
-            : "UPDATE MenuItems SET name = ?,寡�, description = ?, price = ?, category_id = ?, is_available = ?, image = ? WHERE item_id = ?";
+            ? "INSERT INTO MenuItems (item_id, name, description, price, category_id, is_available, image_path, default_portion_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            : "UPDATE MenuItems SET name = ?, description = ?, price = ?, category_id = ?, is_available = ?, image_path = ?, default_portion_size = ? WHERE item_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             UUID id = menuItem.itemId() == null ? UUID.randomUUID() : menuItem.itemId();
             int index = 1;
             if (menuItem.itemId() == null) {
-                preparedStatement.setString(index++, id.toString());
+                preparedStatement.setObject(index++, id, Types.OTHER); // Use setObject for item_id
             }
             preparedStatement.setString(index++, menuItem.name());
             if (menuItem.description() == null) {
@@ -93,21 +112,26 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
                 preparedStatement.setString(index++, menuItem.description());
             }
             preparedStatement.setBigDecimal(index++, menuItem.price());
-            preparedStatement.setString(index++, menuItem.categoryId().toString());
+            preparedStatement.setObject(index++, menuItem.categoryId(), Types.OTHER); // Use setObject for category_id
             preparedStatement.setBoolean(index++, menuItem.isAvailable());
-            if (menuItem.image() == null) {
-                preparedStatement.setNull(index++, Types.BINARY);
+            if (menuItem.imagePath() == null) {
+                preparedStatement.setNull(index++, Types.VARCHAR);
             } else {
-                preparedStatement.setBytes(index++, menuItem.image());
+                preparedStatement.setString(index++, menuItem.imagePath());
+            }
+            if (menuItem.defaultPortionSize() == null) {
+                preparedStatement.setNull(index++, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(index++, menuItem.defaultPortionSize().name());
             }
             if (menuItem.itemId() != null) {
-                preparedStatement.setString(index, id.toString());
+                preparedStatement.setObject(index, id, Types.OTHER); // Use setObject for item_id
             }
             preparedStatement.executeUpdate();
-            return new MenuItem(id, menuItem.name(), menuItem.description(), menuItem.price(), menuItem.categoryId(), menuItem.isAvailable(), menuItem.image());
+            return new MenuItem(id, menuItem.name(), menuItem.description(), menuItem.price(),
+                menuItem.categoryId(), menuItem.isAvailable(), menuItem.imagePath(), menuItem.defaultPortionSize());
         } catch (SQLException e) {
-            e.printStackTrace();
-            return null;
+            throw new RuntimeException("Помилка під час збереження пункту меню", e);
         }
     }
 
@@ -116,17 +140,20 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
         String query = "DELETE FROM MenuItems WHERE item_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, id.toString());
+            preparedStatement.setObject(1, id, Types.OTHER); // Use setObject for UUID
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new EntityNotFoundException("Пункт меню з ID " + id + " не знайдено");
             }
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new EntityNotFoundException("Помилка під час видалення пункту меню з ID " + id, e);
         }
     }
 
     private MenuItem mapToMenuItem(ResultSet resultSet) throws SQLException {
+        String portionSizeStr = resultSet.getString("default_portion_size");
+        PortionSize defaultPortionSize = portionSizeStr != null ? PortionSize.valueOf(portionSizeStr) : PortionSize.MEDIUM;
+
         return new MenuItem(
             UUID.fromString(resultSet.getString("item_id")),
             resultSet.getString("name"),
@@ -134,7 +161,8 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
             resultSet.getBigDecimal("price"),
             UUID.fromString(resultSet.getString("category_id")),
             resultSet.getBoolean("is_available"),
-            resultSet.getBytes("image")
+            resultSet.getString("image_path"),
+            defaultPortionSize
         );
     }
 }

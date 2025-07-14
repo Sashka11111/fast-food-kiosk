@@ -2,7 +2,7 @@ package com.metenkanich.fastfoodkiosk.persistence.entity;
 
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.OrderStatus;
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record Order(
@@ -10,7 +10,7 @@ public record Order(
     UUID userId,
     BigDecimal totalPrice,
     OrderStatus status,
-    ZonedDateTime createdAt
+    LocalDateTime createdAt
 ) implements Entity, Comparable<Order> {
   @Override
   public int compareTo(Order o) {

@@ -42,7 +42,7 @@ public class RegistrationController {
   private UserRepository userRepository;
 
   public RegistrationController() {
-    this.userRepository = new UserRepositoryImpl(new DatabaseConnection().getDataSource());
+    this.userRepository = new UserRepositoryImpl(DatabaseConnection.getStaticDataSource());
   }
 
   @FXML

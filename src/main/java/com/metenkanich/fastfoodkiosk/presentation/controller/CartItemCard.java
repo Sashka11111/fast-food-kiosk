@@ -2,10 +2,9 @@ package com.metenkanich.fastfoodkiosk.presentation.controller;
 
 import com.metenkanich.fastfoodkiosk.domain.exception.EntityNotFoundException;
 import com.metenkanich.fastfoodkiosk.persistence.connection.DatabaseConnection;
+import com.metenkanich.fastfoodkiosk.persistence.entity.Cart;
 import com.metenkanich.fastfoodkiosk.persistence.entity.MenuItem;
-import com.metenkanich.fastfoodkiosk.persistence.repository.impl.MenuItemRepositoryImpl;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
+import com.metenkanich.fastfoodkiosk.persistence.repository.impl.CartRepositoryImpl;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -15,6 +14,9 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
 
 public class CartItemCard {
 
@@ -39,10 +41,10 @@ public class CartItemCard {
     private Cart cartItem;
     private MenuItem menuItem;
     private CartController parentController; // Посилання на CartController для оновлення кошика
-    private MenuItemRepositoryImpl cartRepository;
+    private CartRepositoryImpl cartRepository;
 
     public CartItemCard() {
-        this.cartRepository = new MenuItemRepositoryImpl(new DatabaseConnection().getDataSource());
+        this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getStaticDataSource());
     }
 
     public void setCartItem(Cart cartItem, MenuItem menuItem) {
@@ -55,19 +57,19 @@ public class CartItemCard {
         if (menuItemPrice != null) {
             menuItemPrice.setText(String.format("%.2f грн", cartItem.subtotal()));
         }
-        if (menuItemCalories != null) {
-            menuItemCalories.setText(menuItem.calories() != null ? menuItem.calories() + " ккал" : "0 ккал");
-        }
-        if (quantityLabel != null) {
-            quantityLabel.setText("Кількість: " + cartItem.quantity());
-        }
-        if (menuImage != null) {
-            if (menuItem.image() != null && menuItem.image().length > 0) {
-                menuImage.setImage(new Image(new ByteArrayInputStream(menuItem.image())));
-            } else {
-                menuImage.setImage(new Image(getClass().getResourceAsStream("/data/ingredients.png")));
-            }
-        }
+//        if (menuItemCalories != null) {
+//            menuItemCalories.setText(menuItem.calories() != null ? menuItem.calories() + " ккал" : "0 ккал");
+//        }
+//        if (quantityLabel != null) {
+//            quantityLabel.setText("Кількість: " + cartItem.quantity());
+//        }
+//        if (menuImage != null) {
+//            if (menuItem.imagePath() != null && menuItem.imagePath().length > 0) {
+//                menuImage.setImage(new Image(new ByteArrayInputStream(menuItem.image())));
+//            } else {
+//                menuImage.setImage(new Image(getClass().getResourceAsStream("/data/ingredients.png")));
+//            }
+//        }
 
         // Налаштування кнопки видалення
         if (deleteFromCartButton != null) {

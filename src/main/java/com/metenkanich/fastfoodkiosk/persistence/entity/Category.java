@@ -4,7 +4,8 @@ import java.util.UUID;
 
 public record Category(
     UUID categoryId,
-    String categoryName
+    String categoryName,
+    String imagePath
 ) implements Entity,Comparable<Category> {
   @Override
   public int compareTo(Category o) {

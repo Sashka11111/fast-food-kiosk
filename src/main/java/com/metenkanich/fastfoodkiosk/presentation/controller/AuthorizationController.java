@@ -40,7 +40,7 @@ public class AuthorizationController {
   private UserRepository userRepository;
 
   public AuthorizationController() {
-    this.userRepository = new UserRepositoryImpl(new DatabaseConnection().getDataSource());
+    this.userRepository = new UserRepositoryImpl(DatabaseConnection.getStaticDataSource());
   }
 
   @FXML
@@ -77,18 +77,28 @@ public class AuthorizationController {
             if (user.password().equals(hashedPassword)) {
               AuthenticatedUser.getInstance().setCurrentUser(user);
               authSingUpButton.getScene().getWindow().hide();
-              FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/mainMenu.fxml"));
-              Parent root = loader.load();
-              Stage stage = new Stage();
-              stage.getIcons().add(new Image(getClass().getResourceAsStream("/data/icon.png")));
-              stage.setScene(new Scene(root));
-              stage.initStyle(StageStyle.UNDECORATED);
-              stage.showAndWait();
+              try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/main_menu.fxml"));
+                Parent root = loader.load();
+                Stage stage = new Stage();
+                // Додаємо іконку, якщо вона існує
+                try {
+                  stage.getIcons().add(new Image(getClass().getResourceAsStream("/images/burger.png")));
+                } catch (Exception iconException) {
+                  System.err.println("Не вдалося завантажити іконку: " + iconException.getMessage());
+                }
+                stage.setScene(new Scene(root));
+                stage.initStyle(StageStyle.UNDECORATED);
+                stage.showAndWait();
+              } catch (IOException ioException) {
+                ioException.printStackTrace();
+                AlertController.showAlert("Помилка завантаження головного меню: " + ioException.getMessage());
+              }
             } else {
               AlertController.showAlert("Неправильний логін або пароль");
             }
           }
-        } catch (EntityNotFoundException | IOException e) {
+        } catch (EntityNotFoundException e) {
           AlertController.showAlert("Неправильний логін або пароль");
         }
       } else {

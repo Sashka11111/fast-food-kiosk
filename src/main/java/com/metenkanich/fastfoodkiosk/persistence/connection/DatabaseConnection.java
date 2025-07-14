@@ -38,6 +38,13 @@ public class DatabaseConnection {
     return dataSource;
   }
 
+  public static DataSource getStaticDataSource() {
+    if (dataSource == null) {
+      initializeDataSource(); // Ініціалізація джерела даних
+    }
+    return dataSource;
+  }
+
   public void closePool() {
     if (dataSource != null) {
       dataSource.close();

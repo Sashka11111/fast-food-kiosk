@@ -1,5 +1,6 @@
 package com.metenkanich.fastfoodkiosk.persistence.entity;
 
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PortionSize;
 import java.math.BigDecimal;
 import java.util.UUID;
 
@@ -10,7 +11,8 @@ public record MenuItem(
     BigDecimal price,
     UUID categoryId,
     Boolean isAvailable,
-    byte[] image
+    String imagePath,
+    PortionSize defaultPortionSize
 ) implements Entity, Comparable<MenuItem> {
   @Override
   public int compareTo(MenuItem o) {
@@ -20,5 +22,15 @@ public record MenuItem(
   @Override
   public UUID id() {
     return itemId;
+  }
+
+  /**
+   * Обчислює ціну для конкретного розміру порції
+   */
+  public BigDecimal getPriceForSize(PortionSize size) {
+    if (size == null) {
+      size = defaultPortionSize != null ? defaultPortionSize : PortionSize.MEDIUM;
+    }
+    return price.multiply(BigDecimal.valueOf(size.getPriceMultiplier()));
   }
 }

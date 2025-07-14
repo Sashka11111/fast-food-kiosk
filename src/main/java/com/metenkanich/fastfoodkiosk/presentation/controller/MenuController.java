@@ -2,217 +2,209 @@ package com.metenkanich.fastfoodkiosk.presentation.controller;
 
 import com.metenkanich.fastfoodkiosk.domain.security.AuthenticatedUser;
 import com.metenkanich.fastfoodkiosk.persistence.connection.DatabaseConnection;
+import com.metenkanich.fastfoodkiosk.persistence.entity.Cart;
 import com.metenkanich.fastfoodkiosk.persistence.entity.Category;
 import com.metenkanich.fastfoodkiosk.persistence.entity.MenuItem;
 import com.metenkanich.fastfoodkiosk.persistence.entity.User;
+import com.metenkanich.fastfoodkiosk.persistence.repository.contract.CartRepository;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.CategoryRepository;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.MenuItemRepository;
-import com.metenkanich.fastfoodkiosk.persistence.repository.impl.MenuItemRepositoryImpl;
+import com.metenkanich.fastfoodkiosk.persistence.repository.impl.CartRepositoryImpl;
 import com.metenkanich.fastfoodkiosk.persistence.repository.impl.CategoryRepositoryImpl;
-import com.metenkanich.fastfoodkiosk.persistence.repository.impl.PaymentRepositoryImpl;
+import com.metenkanich.fastfoodkiosk.persistence.repository.impl.MenuItemRepositoryImpl;
+import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.control.Button;
+import javafx.scene.control.ContentDisplay;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.layout.GridPane;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
+
 import java.io.IOException;
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
-import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.Label;
-import javafx.scene.control.ListCell;
-import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.ColumnConstraints;
-import javafx.scene.layout.GridPane;
-import javafx.scene.layout.RowConstraints;
 
 public class MenuController {
 
     @FXML
+    private HBox categoryBar;
+
+    @FXML
+    private GridPane menuGrid;
+
+    @FXML
     private Label errorLabel;
 
-    @FXML
-    private GridPane menuGridPane;
-
-    @FXML
-    private ScrollPane menuScrollPane;
-
-    @FXML
-    private TextField searchTextField;
-
-    @FXML
-    private ComboBox<Category> categoryComboBox;
-
-    private MenuItemRepository menuItemRepository;
-    private MenuItemRepositoryImpl cartRepository;
-    private CategoryRepository categoryRepository;
-    private List<MenuItem> cartItems;
+    private final CategoryRepository categoryRepository;
+    private final MenuItemRepository menuItemRepository;
+    private final CartRepository cartRepository; // Added CartRepository
+    private Button selectedCategoryButton;
 
     public MenuController() {
-        this.menuItemRepository = new PaymentRepositoryImpl(new DatabaseConnection().getDataSource());
-        this.cartRepository = new MenuItemRepositoryImpl(new DatabaseConnection().getDataSource());
-        this.categoryRepository = new CategoryRepositoryImpl(new DatabaseConnection().getDataSource());
+        // Initialize repositories
+        this.categoryRepository = new CategoryRepositoryImpl(DatabaseConnection.getStaticDataSource());
+        this.menuItemRepository = new MenuItemRepositoryImpl(DatabaseConnection.getStaticDataSource());
+        this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getStaticDataSource()); // Initialize CartRepository
     }
 
     @FXML
-    public void initialize() {
-        // Ініціалізація поля пошуку
-        if (searchTextField != null) {
-            searchTextField.setPromptText("Пошук страв...");
-            searchTextField.setOnKeyReleased(event -> searchMenuItems());
-        } else {
-            System.err.println("searchTextField is null");
-        }
-
-        // Ініціалізація ComboBox для категорій
-        if (categoryComboBox != null) {
-            categoryComboBox.getItems().add(new Category(null, "Усі категорії")); // Додаємо опцію "Усі категорії"
-            categoryComboBox.getItems().addAll(categoryRepository.findAll());
-            categoryComboBox.setValue(categoryComboBox.getItems().get(0)); // Вибираємо "Усі категорії" за замовчуванням
-            categoryComboBox.setCellFactory(param -> new ListCell<Category>() {
-                @Override
-                protected void updateItem(Category item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(item.categoryName()); // Відображаємо лише назву категорії
-                    }
-                }
-            });
-            categoryComboBox.setButtonCell(new ListCell<Category>() {
-                @Override
-                protected void updateItem(Category item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (empty || item == null) {
-                        setText(null);
-                    } else {
-                        setText(item.categoryName()); // Відображаємо лише назву категорії
-                    }
-                }
-            });
-            categoryComboBox.setOnAction(event -> filterMenuItemsByCategory());
-        } else {
-            System.err.println("categoryComboBox is null");
-        }
-
-        loadMenuItems();
+    void initialize() {
+        loadCategories();
+        loadMenuItems(null); // Load all menu items by default
     }
 
-    private void loadMenuItems() {
-        User currentUser = AuthenticatedUser.getInstance().getCurrentUser();
-        if (currentUser != null) {
-            cartItems = menuItemRepository.findCartItemsByUserId(currentUser.id());
-        } else {
-            cartItems = List.of();
-        }
-        List<MenuItem> menuItems = menuItemRepository.findAll();
-        displayMenuCards(menuItems);
-    }
+    private void loadCategories() {
+        // Add "All Categories" button
+        Button allCategoriesButton = createCategoryButton("Всі категорії", null, null);
+        allCategoriesButton.setOnAction(event -> {
+            selectCategoryButton(allCategoriesButton);
+            loadMenuItems(null);
+        });
+        categoryBar.getChildren().add(allCategoriesButton);
 
-    private void displayMenuCards(List<MenuItem> menuItems) {
-        if (menuGridPane == null || menuScrollPane == null || errorLabel == null) {
-            System.err.println("Один із компонентів GridPane, ScrollPane або errorLabel є null");
-            return;
-        }
-        menuGridPane.getChildren().clear();
-        if (menuItems.isEmpty()) {
-            errorLabel.setText("Немає доступних страв");
-            menuScrollPane.setVisible(false);
-            return;
-        } else {
-            errorLabel.setText("");
-            menuScrollPane.setVisible(true);
-        }
+        // Set "All Categories" as default selected
+        selectCategoryButton(allCategoriesButton);
 
-        int column = 0;
-        int row = 0;
-        int cardsPerRow = 4;
-
-        // Додаємо інтервали між картками
-        menuGridPane.setHgap(10); // Горизонтальний інтервал 10 пікселів
-        menuGridPane.setVgap(10); // Вертикальний інтервал 10 пікселів
-
-        menuGridPane.getColumnConstraints().clear();
-        menuGridPane.getRowConstraints().clear();
-
-        for (int i = 0; i < cardsPerRow; i++) {
-            ColumnConstraints columnConstraints = new ColumnConstraints();
-            columnConstraints.setPercentWidth(100.0 / cardsPerRow);
-            menuGridPane.getColumnConstraints().add(columnConstraints);
-        }
-
-        for (int i = 0; i < (int) Math.ceil((double) menuItems.size() / cardsPerRow); i++) {
-            RowConstraints rowConstraints = new RowConstraints();
-            rowConstraints.setMinHeight(280);
-            menuGridPane.getRowConstraints().add(rowConstraints);
-        }
-
-        for (MenuItem item : menuItems) {
-            AnchorPane card = loadMenuItemCard(item);
-            if (card != null) {
-                menuGridPane.add(card, column, row);
-                column++;
-                if (column == cardsPerRow) {
-                    column = 0;
-                    row++;
-                }
-            } else {
-                System.err.println("Помилка завантаження картки для страви: " + item.name());
-            }
-        }
-    }
-
-    private AnchorPane loadMenuItemCard(MenuItem item) {
+        // Load categories from database
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/menuItemCard.fxml"));
-            AnchorPane card = loader.load();
-            MenuItemCard controller = loader.getController();
-            if (controller != null) {
-                controller.setMenuItem(item);
-                controller.setParentController(this);
-                return card;
-            } else {
-                System.err.println("Контролер MenuItemCard є null");
-                return null;
+            List<Category> categories = categoryRepository.findAll();
+            for (Category category : categories) {
+                Button categoryButton = createCategoryButton(category.categoryName(), category.imagePath(), category.categoryId());
+                categoryButton.setOnAction(event -> {
+                    selectCategoryButton(categoryButton);
+                    loadMenuItems(category.categoryId());
+                });
+                categoryBar.getChildren().add(categoryButton);
             }
-        } catch (IOException e) {
+        } catch (Exception e) {
             if (errorLabel != null) {
-                errorLabel.setText("Помилка завантаження картки: " + e.getMessage());
+                errorLabel.setText("Помилка завантаження категорій: " + e.getMessage());
             }
             e.printStackTrace();
-            return null;
         }
     }
 
-    private void searchMenuItems() {
-        if (searchTextField == null) {
-            System.err.println("searchTextField is null in searchMenuItems");
-            return;
+    private Button createCategoryButton(String text, String imagePath, UUID categoryId) {
+        Button categoryButton = new Button(text);
+
+        String baseStyle = "-fx-background-radius: 25; -fx-padding: 8 16 8 16; " +
+            "-fx-font-size: 12; -fx-font-weight: bold; " +
+            "-fx-min-width: 120; -fx-pref-height: 60; " +
+            "-fx-background-color: #f0f0f0; -fx-text-fill: #666666; " +
+            "-fx-border-color: transparent; -fx-border-radius: 25;";
+
+        categoryButton.setStyle(baseStyle);
+
+        // Add category image
+        ImageView imageView = createCategoryImageView(imagePath, text);
+        if (imageView != null) {
+            categoryButton.setGraphic(imageView);
+            categoryButton.setContentDisplay(ContentDisplay.LEFT);
+            categoryButton.setGraphicTextGap(8);
         }
-        String query = searchTextField.getText().toLowerCase().trim();
-        List<MenuItem> allMenuItems = getFilteredItemsByCategory();
-        List<MenuItem> result = allMenuItems.stream()
-            .filter(item -> item.name().toLowerCase().contains(query) || (item.description() != null && item.description().toLowerCase().contains(query)))
-            .collect(Collectors.toList());
-        displayMenuCards(result);
+
+        return categoryButton;
     }
 
-    private void filterMenuItemsByCategory() {
-        List<MenuItem> filteredItems = getFilteredItemsByCategory();
-        String query = searchTextField.getText().toLowerCase().trim();
-        List<MenuItem> result = filteredItems.stream()
-            .filter(item -> item.name().toLowerCase().contains(query) || (item.description() != null && item.description().toLowerCase().contains(query)))
-            .collect(Collectors.toList());
-        displayMenuCards(result);
+    private ImageView createCategoryImageView(String imagePath, String categoryName) {
+        ImageView imageView = new ImageView();
+        imageView.setFitHeight(30);
+        imageView.setFitWidth(30);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+
+        if (imagePath != null && !imagePath.trim().isEmpty()) {
+            try {
+                // Load image from resources
+                Image image = new Image(getClass().getResourceAsStream(imagePath));
+                if (!image.isError()) {
+                    imageView.setImage(image);
+                } else {
+                    System.err.println("Помилка завантаження зображення для категорії: " + categoryName + " з шляху: " + imagePath);
+                    setDefaultCategoryImage(imageView, categoryName);
+                }
+            } catch (Exception e) {
+                System.err.println("Помилка завантаження зображення для категорії: " + categoryName + " з шляху: " + imagePath);
+                setDefaultCategoryImage(imageView, categoryName);
+            }
+        } else {
+            // Set default image
+            setDefaultCategoryImage(imageView, categoryName);
+        }
+
+        return imageView;
     }
 
-    private List<MenuItem> getFilteredItemsByCategory() {
-        Category selectedCategory = categoryComboBox.getValue();
-        if (selectedCategory == null || selectedCategory.categoryId() == null) {
-            return menuItemRepository.findAll();
+    private void setDefaultCategoryImage(ImageView imageView, String categoryName) {
+        try {
+            Image defaultImage = new Image(getClass().getResourceAsStream("/images/category.png"));
+            if (!defaultImage.isError()) {
+                imageView.setImage(defaultImage);
+            } else {
+                System.err.println("Помилка завантаження дефолтного зображення для категорії: " + categoryName);
+            }
+        } catch (Exception e) {
+            System.err.println("Помилка завантаження дефолтного зображення для категорії: " + categoryName + ": " + e.getMessage());
         }
-        return menuItemRepository.findByCategoryId(selectedCategory.categoryId());
+    }
+
+    private void selectCategoryButton(Button button) {
+        // Reset style of previously selected button
+        if (selectedCategoryButton != null) {
+            String baseStyle = "-fx-background-radius: 25; -fx-padding: 8 16 8 16; " +
+                "-fx-font-size: 12; -fx-font-weight: bold; " +
+                "-fx-min-width: 120; -fx-pref-height: 60; " +
+                "-fx-background-color: #f0f0f0; -fx-text-fill: #666666; " +
+                "-fx-border-color: transparent; -fx-border-radius: 25;";
+            selectedCategoryButton.setStyle(baseStyle);
+        }
+
+        // Apply style to new selected button
+        String selectedStyle = "-fx-background-radius: 25; -fx-padding: 8 16 8 16; " +
+            "-fx-font-size: 12; -fx-font-weight: bold; " +
+            "-fx-min-width: 120; -fx-pref-height: 60; " +
+            "-fx-background-color: #f0f0f0; -fx-text-fill: #e47d7e; " +
+            "-fx-border-color: #e47d7e; -fx-border-radius: 25; -fx-border-width: 2;";
+        button.setStyle(selectedStyle);
+
+        selectedCategoryButton = button;
+    }
+
+    private void loadMenuItems(UUID categoryId) {
+        menuGrid.getChildren().clear();
+        try {
+            List<MenuItem> menuItems = categoryId == null ? menuItemRepository.findAll() : menuItemRepository.findByCategory(categoryId);
+            int row = 0;
+            int col = 0;
+            for (MenuItem item : menuItems) {
+                try {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/menu_item_card.fxml"));
+                    VBox card = loader.load();
+                    // Set up card
+                    MenuItemCardController cardController = loader.getController();
+                    cardController.setMenuItem(item);
+                    menuGrid.add(card, col, row);
+                    col++;
+                    if (col > 2) {
+                        col = 0;
+                        row++;
+                    }
+                } catch (IOException e) {
+                    if (errorLabel != null) {
+                        errorLabel.setText("Помилка завантаження картки меню: " + e.getMessage());
+                    }
+                    e.printStackTrace();
+                }
+            }
+        } catch (Exception e) {
+            if (errorLabel != null) {
+                errorLabel.setText("Помилка завантаження пунктів меню: " + e.getMessage());
+            }
+            e.printStackTrace();
+        }
     }
 
     public void addToCart(MenuItem item, int quantity) {
@@ -229,22 +221,32 @@ public class MenuController {
             }
             return;
         }
-        double subtotal = item.price() * quantity;
-        Cart cartItem = new Cart(
-            UUID.randomUUID(),
-            currentUser.id(),
-            item.itemId(),
-            quantity,
-            subtotal,
-            false
-        );
-        Cart savedCartItem = cartRepository.create(cartItem);
-        if (savedCartItem != null) {
-            loadMenuItems(); // Оновити відображення
-        } else {
-            if (errorLabel != null) {
-                errorLabel.setText("Помилка додавання до кошика");
+        try {
+            double subtotal = item.price().doubleValue() * quantity;
+            Cart cartItem = new Cart(
+                UUID.randomUUID(),
+                currentUser.id(),
+                item.itemId(),
+                quantity,
+                (float) subtotal, // Assuming Cart.subtotal is float based on schema
+                false
+            );
+            Cart savedCartItem = cartRepository.create(cartItem);
+            if (savedCartItem != null) {
+                loadMenuItems(null); // Refresh menu items
+                if (errorLabel != null) {
+                    errorLabel.setText("Товар додано до кошика");
+                }
+            } else {
+                if (errorLabel != null) {
+                    errorLabel.setText("Помилка додавання до кошика");
+                }
             }
+        } catch (Exception e) {
+            if (errorLabel != null) {
+                errorLabel.setText("Помилка додавання до кошика: " + e.getMessage());
+            }
+            e.printStackTrace();
         }
     }
 }

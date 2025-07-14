@@ -2,7 +2,7 @@ package com.metenkanich.fastfoodkiosk.persistence.entity;
 
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentStatus;
 import java.math.BigDecimal;
-import java.time.ZonedDateTime;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record Payment(
@@ -11,7 +11,7 @@ public record Payment(
     BigDecimal amount,
     String paymentMethod,
     PaymentStatus paymentStatus,
-    ZonedDateTime createdAt
+    LocalDateTime createdAt
 ) implements Entity, Comparable<Payment> {
     @Override
     public int compareTo(Payment o) {

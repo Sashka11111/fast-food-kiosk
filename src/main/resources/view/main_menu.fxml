@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.StackPane?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="800.0" prefWidth="1280.0" style="-fx-background-color: #f5f8fc;" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.metenkanich.fastfoodkiosk.presentation.controller.MainMenuController">
+  <children>
+    <AnchorPane layoutX="5.0" layoutY="80.0" prefHeight="720.0" prefWidth="220.0" styleClass="side-menu" stylesheets="@../design/style.css">
+      <children>
+        <Button fx:id="menuButton" graphicTextGap="8.0" layoutY="132.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Меню">
+          <font>
+            <Font size="18.0" />
+          </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/menu.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+        </Button>
+        <StackPane fx:id="stackPane" layoutX="3.0" layoutY="132.0" prefHeight="58.0" prefWidth="2.0" style="-fx-background-color: #e47d7e;" />
+            <ImageView fitHeight="196.0" fitWidth="244.0" layoutX="30.0" layoutY="510.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/food.png" />
+               </image>
+            </ImageView>
+            <Button fx:id="cartButton" graphicTextGap="8.0" layoutY="190.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Кошик">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/cart.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+      </children>
+    </AnchorPane>
+    <AnchorPane layoutX="5.0" layoutY="5.0" prefHeight="50.0" prefWidth="1270.0" styleClass="side-menu" stylesheets="@../design/style.css">
+      <children>
+        <Button fx:id="closeButton" layoutX="1216.0" layoutY="4.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="close-button" stylesheets="@../design/style.css">
+          <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@../images/close.png" />
+              </image>
+                  </ImageView>
+          </graphic>
+        </Button>
+        <Button fx:id="minimazeButton" layoutX="1168.0" layoutY="4.0" mnemonicParsing="false" prefHeight="40.0" prefWidth="40.0" styleClass="minimize-button" stylesheets="@../design/style.css">
+          <graphic>
+            <ImageView fitHeight="20.0" fitWidth="20.0" pickOnBounds="true" preserveRatio="true">
+              <image>
+                <Image url="@../images/minus.png" />
+              </image>
+            </ImageView>
+          </graphic>
+        </Button>
+        <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="39.0" layoutY="9.0" prefHeight="30.0" prefWidth="79.0" text="Tap &amp; " textFill="#e47d7e">
+          <font>
+            <Font name="Georgia" size="24.0" />
+          </font>
+        </Label>
+            <Label alignment="TOP_LEFT" contentDisplay="CENTER" layoutX="109.0" layoutY="9.0" prefHeight="30.0" prefWidth="50.0" text="Eat">
+               <font>
+                  <Font name="Georgia" size="24.0" />
+               </font>
+            </Label>
+      </children>
+    </AnchorPane>
+    <AnchorPane layoutX="230.0" layoutY="80.0" prefHeight="720.0" prefWidth="1040.0">
+         <children>
+        <StackPane fx:id="contentArea" layoutX="20.0" prefHeight="720.0" prefWidth="1000.0" styleClass="side-menu" stylesheets="@../design/style.css" />
+         </children>
+    </AnchorPane>
+      <AnchorPane layoutX="60.0" layoutY="45.0" prefHeight="76.0" prefWidth="79.0" styleClass="image-view" stylesheets="@../design/style.css">
+         <children>
+            <ImageView fitHeight="58.0" fitWidth="50.0" layoutX="15.0" layoutY="13.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@../images/burger.png" />
+               </image>
+            </ImageView>
+         </children>
+      </AnchorPane>
+  </children>
+</AnchorPane>

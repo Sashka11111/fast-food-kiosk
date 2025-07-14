@@ -11,6 +11,7 @@ public class CategoryValidator {
   // Константи для валідації
   private static final int MIN_NAME_LENGTH = 2;
   private static final int MAX_NAME_LENGTH = 50;
+  private static final int MAX_IMAGE_PATH_LENGTH = 255; // Максимальна довжина шляху до зображення
 
   // Патерн для перевірки імені категорії
   private static final String NAME_PATTERN = "^[a-zA-Zа-яА-ЯёЁіІїЇєЄґҐ\\s-]+$";
@@ -82,6 +83,48 @@ public class CategoryValidator {
     return new ValidationResult(true);
   }
 
+  // Перевірка шляху до зображення категорії
+  public static ValidationResult isImagePathValid(String imagePath) {
+    List<String> errors = new ArrayList<>();
+
+    // Шлях до зображення не є обов'язковим
+    if (imagePath == null || imagePath.trim().isEmpty()) {
+      return new ValidationResult(true);
+    }
+
+    // Перевірка довжини шляху
+    if (imagePath.length() > MAX_IMAGE_PATH_LENGTH) {
+      errors.add("Шлях до зображення не може перевищувати " + MAX_IMAGE_PATH_LENGTH + " символів");
+    }
+
+    // Перевірка формату шляху (повинен бути відносним шляхом до файлу зображення)
+    if (!isValidImagePath(imagePath)) {
+      errors.add("Шлях до зображення повинен мати формат '/images/categories/filename.ext' та підтримувані розширення: .jpg, .jpeg, .png, .gif, .bmp");
+    }
+
+    return new ValidationResult(errors.isEmpty(), errors);
+  }
+
+  // Перевірка формату шляху до зображення
+  private static boolean isValidImagePath(String imagePath) {
+    if (imagePath == null || imagePath.trim().isEmpty()) {
+      return false;
+    }
+
+    // Перевірка, що шлях починається з /images/categories/
+    if (!imagePath.startsWith("/images/categories/")) {
+      return false;
+    }
+
+    // Перевірка розширення файлу
+    String lowerPath = imagePath.toLowerCase();
+    return lowerPath.endsWith(".jpg") ||
+           lowerPath.endsWith(".jpeg") ||
+           lowerPath.endsWith(".png") ||
+           lowerPath.endsWith(".gif") ||
+           lowerPath.endsWith(".bmp");
+  }
+
   // Повна валідація об'єкта Category
   public static ValidationResult isCategoryValid(Category category, boolean isExisting, CategoryRepositoryImpl repository) {
     if (category == null) {
@@ -108,6 +151,12 @@ public class CategoryValidator {
     ValidationResult nameUniqueResult = isNameUnique(category.categoryName(), category.categoryId(), repository);
     if (!nameUniqueResult.isValid()) {
       errors.addAll(nameUniqueResult.getErrors());
+    }
+
+    // Перевірка шляху до зображення
+    ValidationResult imageResult = isImagePathValid(category.imagePath());
+    if (!imageResult.isValid()) {
+      errors.addAll(imageResult.getErrors());
     }
 
     // Повернення результату валідації
