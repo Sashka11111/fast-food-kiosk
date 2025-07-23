@@ -5,7 +5,6 @@ import com.metenkanich.fastfoodkiosk.persistence.entity.MenuItem;
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PortionSize;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.MenuItemRepository;
 
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -28,7 +27,7 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
         String query = "SELECT * FROM MenuItems WHERE item_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setObject(1, id, Types.OTHER); // Use setObject for UUID
+            preparedStatement.setObject(1, id, Types.OTHER);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapToMenuItem(resultSet);
@@ -94,44 +93,74 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
     }
 
     @Override
-    public MenuItem save(MenuItem menuItem) {
-        String query = menuItem.itemId() == null
-            ? "INSERT INTO MenuItems (item_id, name, description, price, category_id, is_available, image_path, default_portion_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
-            : "UPDATE MenuItems SET name = ?, description = ?, price = ?, category_id = ?, is_available = ?, image_path = ?, default_portion_size = ? WHERE item_id = ?";
+    public MenuItem create(MenuItem menuItem) {
+        String query = "INSERT INTO MenuItems (item_id, name, description, price, category_id, is_available, image_path, default_portion_size) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            UUID id = menuItem.itemId() == null ? UUID.randomUUID() : menuItem.itemId();
-            int index = 1;
-            if (menuItem.itemId() == null) {
-                preparedStatement.setObject(index++, id, Types.OTHER); // Use setObject for item_id
-            }
-            preparedStatement.setString(index++, menuItem.name());
+            UUID id = UUID.randomUUID();
+            preparedStatement.setObject(1, id, Types.OTHER);
+            preparedStatement.setString(2, menuItem.name());
             if (menuItem.description() == null) {
-                preparedStatement.setNull(index++, Types.VARCHAR);
+                preparedStatement.setNull(3, Types.VARCHAR);
             } else {
-                preparedStatement.setString(index++, menuItem.description());
+                preparedStatement.setString(3, menuItem.description());
             }
-            preparedStatement.setBigDecimal(index++, menuItem.price());
-            preparedStatement.setObject(index++, menuItem.categoryId(), Types.OTHER); // Use setObject for category_id
-            preparedStatement.setBoolean(index++, menuItem.isAvailable());
+            preparedStatement.setBigDecimal(4, menuItem.price());
+            preparedStatement.setObject(5, menuItem.categoryId(), Types.OTHER);
+            preparedStatement.setBoolean(6, menuItem.isAvailable());
             if (menuItem.imagePath() == null) {
-                preparedStatement.setNull(index++, Types.VARCHAR);
+                preparedStatement.setNull(7, Types.VARCHAR);
             } else {
-                preparedStatement.setString(index++, menuItem.imagePath());
+                preparedStatement.setString(7, menuItem.imagePath());
             }
             if (menuItem.defaultPortionSize() == null) {
-                preparedStatement.setNull(index++, Types.VARCHAR);
+                preparedStatement.setNull(8, Types.VARCHAR);
             } else {
-                preparedStatement.setString(index++, menuItem.defaultPortionSize().name());
-            }
-            if (menuItem.itemId() != null) {
-                preparedStatement.setObject(index, id, Types.OTHER); // Use setObject for item_id
+                preparedStatement.setString(8, menuItem.defaultPortionSize().name());
             }
             preparedStatement.executeUpdate();
             return new MenuItem(id, menuItem.name(), menuItem.description(), menuItem.price(),
                 menuItem.categoryId(), menuItem.isAvailable(), menuItem.imagePath(), menuItem.defaultPortionSize());
         } catch (SQLException e) {
-            throw new RuntimeException("Помилка під час збереження пункту меню", e);
+            throw new RuntimeException("Помилка під час створення пункту меню", e);
+        }
+    }
+
+    @Override
+    public MenuItem update(MenuItem menuItem) throws EntityNotFoundException {
+        if (menuItem.itemId() == null) {
+            throw new EntityNotFoundException("ID пункту меню не може бути null для оновлення");
+        }
+        String query = "UPDATE MenuItems SET name = ?, description = ?, price = ?, category_id = ?, is_available = ?, image_path = ?, default_portion_size = ? WHERE item_id = ?";
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, menuItem.name());
+            if (menuItem.description() == null) {
+                preparedStatement.setNull(2, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(2, menuItem.description());
+            }
+            preparedStatement.setBigDecimal(3, menuItem.price());
+            preparedStatement.setObject(4, menuItem.categoryId(), Types.OTHER);
+            preparedStatement.setBoolean(5, menuItem.isAvailable());
+            if (menuItem.imagePath() == null) {
+                preparedStatement.setNull(6, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(6, menuItem.imagePath());
+            }
+            if (menuItem.defaultPortionSize() == null) {
+                preparedStatement.setNull(7, Types.VARCHAR);
+            } else {
+                preparedStatement.setString(7, menuItem.defaultPortionSize().name());
+            }
+            preparedStatement.setObject(8, menuItem.itemId(), Types.OTHER);
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new EntityNotFoundException("Пункт меню з ID " + menuItem.itemId() + " не знайдено для оновлення");
+            }
+            return menuItem;
+        } catch (SQLException e) {
+            throw new EntityNotFoundException("Помилка під час оновлення пункту меню з ID " + menuItem.itemId(), e);
         }
     }
 
@@ -140,7 +169,7 @@ public class MenuItemRepositoryImpl implements MenuItemRepository {
         String query = "DELETE FROM MenuItems WHERE item_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setObject(1, id, Types.OTHER); // Use setObject for UUID
+            preparedStatement.setObject(1, id, Types.OTHER);
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new EntityNotFoundException("Пункт меню з ID " + id + " не знайдено");

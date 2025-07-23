@@ -10,6 +10,7 @@ public interface MenuItemRepository {
     MenuItem findByName(String name) throws EntityNotFoundException;
     List<MenuItem> findAll();
     List<MenuItem> findByCategory(UUID categoryId);
-    MenuItem save(MenuItem menuItem);
+    MenuItem create(MenuItem menuItem);
+    MenuItem update(MenuItem menuItem) throws EntityNotFoundException;
     void deleteById(UUID id) throws EntityNotFoundException;
 }

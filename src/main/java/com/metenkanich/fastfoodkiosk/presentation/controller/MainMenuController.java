@@ -1,8 +1,5 @@
 package com.metenkanich.fastfoodkiosk.presentation.controller;
 
-import com.metenkanich.fastfoodkiosk.domain.security.AuthenticatedUser;
-import com.metenkanich.fastfoodkiosk.persistence.entity.User;
-import com.metenkanich.fastfoodkiosk.persistence.entity.enums.Role;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,17 +43,6 @@ public class MainMenuController {
         cartButton.setOnAction(event -> showCartPage());
         menuButton.setOnAction(event -> showMenuPage());
         showMenu();
-
-        User currentUser = AuthenticatedUser.getInstance().getCurrentUser();
-
-
-        if (currentUser.role() != Role.ADMIN) {
-//            manageOrdersButton.setVisible(false);
-//            manageMenuButton.setVisible(false);
-//            categoryButton.setVisible(false);
-//            usersButton.setVisible(false);
-        }
-
         Platform.runLater(() -> {
             Stage primaryStage = (Stage) contentArea.getScene().getWindow();
             addDragListeners(primaryStage.getScene().getRoot());

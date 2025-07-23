@@ -18,6 +18,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
+import javax.sql.DataSource;
 
 public class RegistrationController {
 
@@ -42,7 +43,8 @@ public class RegistrationController {
   private UserRepository userRepository;
 
   public RegistrationController() {
-    this.userRepository = new UserRepositoryImpl(DatabaseConnection.getStaticDataSource());
+    DataSource dataSource = DatabaseConnection.getInstance().getDataSource();
+    this.userRepository = new UserRepositoryImpl(dataSource);
   }
 
   @FXML
@@ -95,7 +97,6 @@ public class RegistrationController {
       displayError("Користувач з таким ім'ям вже існує");
       return;
     } catch (EntityNotFoundException e) {
-      // Якщо користувача не знайдено, це добре, ми можемо його створити
     }
     String hashedPassword = PasswordHashing.getInstance().hashedPassword(password);
 

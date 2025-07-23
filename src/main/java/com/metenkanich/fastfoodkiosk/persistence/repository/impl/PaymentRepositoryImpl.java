@@ -4,11 +4,11 @@ import com.metenkanich.fastfoodkiosk.domain.exception.EntityNotFoundException;
 import com.metenkanich.fastfoodkiosk.persistence.entity.Payment;
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentStatus;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.PaymentRepository;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
         String query = "SELECT * FROM Payments WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, id.toString());
+            preparedStatement.setObject(1, id, Types.OTHER);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapToPayment(resultSet);
@@ -43,7 +43,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     @Override
     public List<Payment> findAll() {
         List<Payment> payments = new ArrayList<>();
-        String query = "SELECT * FROM Payments";
+        String query = "SELECT * FROM Payments ORDER BY created_at DESC";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query);
             ResultSet resultSet = preparedStatement.executeQuery()) {
@@ -51,36 +51,80 @@ public class PaymentRepositoryImpl implements PaymentRepository {
                 payments.add(mapToPayment(resultSet));
             }
         } catch (SQLException e) {
+            System.err.println("Помилка при отриманні всіх платежів: " + e.getMessage());
             e.printStackTrace();
         }
         return payments;
     }
 
     @Override
-    public Payment save(Payment payment) {
-        String query = payment.id() == null
-            ? "INSERT INTO Payments (id, order_id, amount, payment_method, payment_status, created_at) VALUES (?, ?, ?, ?, ?, ?)"
-            : "UPDATE Payments SET order_id = ?, amount = ?, payment_method = ?, payment_status = ?, created_at = ? WHERE id = ?";
+    public Payment findByCartId(UUID cartId) throws EntityNotFoundException {
+        String query = "SELECT * FROM Payments WHERE cart_id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            UUID id = payment.id() == null ? UUID.randomUUID() : payment.id();
-            int index = 1;
-            if (payment.id() == null) {
-                preparedStatement.setString(index++, id.toString());
+            preparedStatement.setObject(1, cartId, Types.OTHER);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapToPayment(resultSet);
+                } else {
+                    throw new EntityNotFoundException("Платіж для кошика з ID " + cartId + " не знайдено");
+                }
             }
-            preparedStatement.setString(index++, payment.orderId().toString());
-            preparedStatement.setBigDecimal(index++, payment.amount());
-            preparedStatement.setString(index++, payment.paymentMethod());
-            preparedStatement.setString(index++, payment.paymentStatus().name());
-            preparedStatement.setObject(index++, payment.createdAt());
-            if (payment.id() != null) {
-                preparedStatement.setString(index, id.toString());
-            }
-            preparedStatement.executeUpdate();
-            return new Payment(id, payment.orderId(), payment.amount(), payment.paymentMethod(), payment.paymentStatus(), payment.createdAt());
         } catch (SQLException e) {
+            throw new EntityNotFoundException("Помилка під час пошуку платежу для кошика з ID " + cartId, e);
+        }
+    }
+
+    @Override
+    public Payment create(Payment payment) {
+        String query = "INSERT INTO Payments (id, cart_id, payment_method, payment_status, created_at) VALUES (?, ?, ?, ?, ?)";
+        System.out.println("DEBUG PaymentRepository: Створюємо платіж з query: " + query);
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            UUID id = UUID.randomUUID();
+            System.out.println("DEBUG PaymentRepository: payment ID = " + id + ", cart_id = " + payment.cartId());
+            preparedStatement.setObject(1, id, Types.OTHER);
+            preparedStatement.setObject(2, payment.cartId(), Types.OTHER);
+            preparedStatement.setString(3, payment.paymentMethod());
+            preparedStatement.setString(4, payment.paymentStatus().name());
+            preparedStatement.setObject(5, payment.createdAt());
+            System.out.println("DEBUG PaymentRepository: Виконуємо executeUpdate()");
+            preparedStatement.executeUpdate();
+            System.out.println("DEBUG PaymentRepository: executeUpdate() виконано успішно");
+            return new Payment(id, payment.cartId(), payment.paymentMethod(), payment.paymentStatus(), payment.createdAt());
+        } catch (SQLException e) {
+            System.err.println("DEBUG PaymentRepository: SQL Exception при створенні: " + e.getMessage());
             e.printStackTrace();
             return null;
+        }
+    }
+
+    @Override
+    public Payment update(Payment payment) throws EntityNotFoundException {
+        if (payment.id() == null) {
+            throw new EntityNotFoundException("ID платежу не може бути null для оновлення");
+        }
+        String query = "UPDATE Payments SET cart_id = ?, payment_method = ?, payment_status = ?, created_at = ? WHERE id = ?";
+        System.out.println("DEBUG PaymentRepository: Оновлюємо платіж з query: " + query);
+        try (Connection connection = dataSource.getConnection();
+            PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            System.out.println("DEBUG PaymentRepository: payment ID = " + payment.id() + ", cart_id = " + payment.cartId());
+            preparedStatement.setObject(1, payment.cartId(), Types.OTHER);
+            preparedStatement.setString(2, payment.paymentMethod());
+            preparedStatement.setString(3, payment.paymentStatus().name());
+            preparedStatement.setObject(4, payment.createdAt());
+            preparedStatement.setObject(5, payment.id(), Types.OTHER);
+            System.out.println("DEBUG PaymentRepository: Виконуємо executeUpdate()");
+            int affectedRows = preparedStatement.executeUpdate();
+            if (affectedRows == 0) {
+                throw new EntityNotFoundException("Платіж з ID " + payment.id() + " не знайдено для оновлення");
+            }
+            System.out.println("DEBUG PaymentRepository: executeUpdate() виконано успішно");
+            return payment;
+        } catch (SQLException e) {
+            System.err.println("DEBUG PaymentRepository: SQL Exception при оновленні: " + e.getMessage());
+            e.printStackTrace();
+            throw new EntityNotFoundException("Помилка під час оновлення платежу з ID " + payment.id(), e);
         }
     }
 
@@ -89,21 +133,22 @@ public class PaymentRepositoryImpl implements PaymentRepository {
         String query = "DELETE FROM Payments WHERE id = ?";
         try (Connection connection = dataSource.getConnection();
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, id.toString());
+            preparedStatement.setObject(1, id, Types.OTHER);
             int affectedRows = preparedStatement.executeUpdate();
             if (affectedRows == 0) {
                 throw new EntityNotFoundException("Платіж з ID " + id + " не знайдено");
             }
         } catch (SQLException e) {
+            System.err.println("Помилка при видаленні платежу з ID " + id + ": " + e.getMessage());
             e.printStackTrace();
+            throw new EntityNotFoundException("Помилка під час видалення платежу з ID " + id, e);
         }
     }
 
     private Payment mapToPayment(ResultSet resultSet) throws SQLException {
         return new Payment(
             UUID.fromString(resultSet.getString("id")),
-            UUID.fromString(resultSet.getString("order_id")),
-            resultSet.getBigDecimal("amount"),
+            UUID.fromString(resultSet.getString("cart_id")),
             resultSet.getString("payment_method"),
             PaymentStatus.valueOf(resultSet.getString("payment_status")),
             resultSet.getObject("created_at", LocalDateTime.class)

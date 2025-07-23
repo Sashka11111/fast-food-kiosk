@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.UUID;
 
 public class OrderValidator {
-  // Validate order ID
   public static ValidationResult isOrderIdValid(UUID orderId, boolean isExisting) {
     if (isExisting && orderId == null) {
       List<String> errors = new ArrayList<>();
@@ -17,7 +16,6 @@ public class OrderValidator {
     return new ValidationResult(true);
   }
 
-  // Validate total price
   public static ValidationResult isTotalPriceValid(BigDecimal totalPrice) {
     List<String> errors = new ArrayList<>();
     if (totalPrice == null) {
@@ -30,7 +28,6 @@ public class OrderValidator {
     return new ValidationResult(errors.isEmpty(), errors);
   }
 
-  // Full validation of Order object
   public static ValidationResult isOrderValid(Order order, boolean isExisting) {
     if (order == null) {
       List<String> errors = new ArrayList<>();
@@ -40,29 +37,24 @@ public class OrderValidator {
 
     List<String> errors = new ArrayList<>();
 
-    // Validate order ID
     ValidationResult orderIdResult = isOrderIdValid(order.orderId(), isExisting);
     if (!orderIdResult.isValid()) {
       errors.addAll(orderIdResult.getErrors());
     }
 
-    // Validate user ID
     if (order.userId() == null) {
       errors.add("Ідентифікатор користувача не може бути відсутнім");
     }
 
-    // Validate total price
     ValidationResult totalPriceResult = isTotalPriceValid(order.totalPrice());
     if (!totalPriceResult.isValid()) {
       errors.addAll(totalPriceResult.getErrors());
     }
 
-    // Validate status
     if (order.status() == null) {
       errors.add("Статус замовлення не може бути відсутнім");
     }
 
-    // Validate createdAt
     if (order.createdAt() == null) {
       errors.add("Дата створення замовлення не може бути відсутньою");
     }

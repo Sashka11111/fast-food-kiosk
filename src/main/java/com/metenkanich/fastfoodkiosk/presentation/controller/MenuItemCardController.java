@@ -7,7 +7,6 @@ import com.metenkanich.fastfoodkiosk.persistence.entity.MenuItem;
 import com.metenkanich.fastfoodkiosk.persistence.entity.User;
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PortionSize;
 import com.metenkanich.fastfoodkiosk.persistence.repository.impl.CartRepositoryImpl;
-import java.util.List;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
@@ -30,7 +29,7 @@ public class MenuItemCardController {
     private Text itemName;
 
     @FXML
-    private Text itemDescription;
+    private Label itemDescription;
 
     @FXML
     private ComboBox<PortionSize> portionSizeComboBox;
@@ -39,22 +38,16 @@ public class MenuItemCardController {
     private Text itemPrice;
 
     @FXML
-    private Label availabilityLabel;
-
-    @FXML
     private Button addToCartButton;
     @FXML
     private Spinner<Integer> quantity;
 
     private MenuItem currentMenuItem;
-    private UUID userId;
     private CartRepositoryImpl cartRepository;
-    private Label errorLabel; // Для відображення повідомлень
-    private MenuController parentController;
-    private MenuItem menuItem;
 
     public MenuItemCardController() {
-        this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getStaticDataSource());
+        // Використовуємо Singleton для отримання одного DataSource
+        this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getInstance().getDataSource());
     }
 
     @FXML
@@ -74,9 +67,9 @@ public class MenuItemCardController {
     public void setMenuItem(MenuItem menuItem) {
         this.currentMenuItem = menuItem;
 
-        // Ініціалізація репозиторію
+        // Ініціалізація репозиторію (якщо потрібно)
         if (cartRepository == null) {
-            cartRepository = new CartRepositoryImpl(DatabaseConnection.getStaticDataSource());
+            cartRepository = new CartRepositoryImpl(DatabaseConnection.getInstance().getDataSource());
         }
         itemName.setText(menuItem.name());
         if (menuItem.description() != null && !menuItem.description().trim().isEmpty()) {
@@ -124,39 +117,73 @@ public class MenuItemCardController {
         updatePrice();
 
         // Встановлення зображення
-        if (menuItem.imagePath() != null && !menuItem.imagePath().trim().isEmpty()) {
-            try {
-                Image image = new Image(getClass().getResourceAsStream(menuItem.imagePath()));
-                if (!image.isError()) {
-                    itemImage.setImage(image);
-                } else {
-                    itemImage.setImage(null);
-                }
-            } catch (Exception e) {
-                // Якщо зображення не вдалося завантажити, залишаємо порожнім
-                itemImage.setImage(null);
-            }
-        } else {
-            itemImage.setImage(null);
-        }
+        setItemImage(menuItem.imagePath(), menuItem.name());
 
         // Встановлення статусу доступності
         if (menuItem.isAvailable() != null && menuItem.isAvailable()) {
-            availabilityLabel.setText("Доступно");
-            availabilityLabel.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8 2 8; -fx-font-size: 10;");
+            // Видаляємо клас недоступності, якщо він був
+            itemName.getParent().getStyleClass().remove("unavailable");
             addToCartButton.setDisable(false);
             portionSizeComboBox.setDisable(false);
+            quantity.setDisable(false);
         } else {
-            availabilityLabel.setText("Недоступно");
-            availabilityLabel.setStyle("-fx-background-color: #f44336; -fx-text-fill: white; -fx-background-radius: 10; -fx-padding: 2 8 2 8; -fx-font-size: 10;");
+            // Додаємо клас недоступності до основного контейнера карточки
+            if (!itemName.getParent().getStyleClass().contains("unavailable")) {
+                itemName.getParent().getStyleClass().add("unavailable");
+            }
             addToCartButton.setDisable(true);
             portionSizeComboBox.setDisable(true);
+            quantity.setDisable(true);
         }
 
         // Логіка додавання до кошика
         addToCartButton.setOnAction(event -> {
             addToCart();
         });
+    }
+
+// In MenuItemCardController.java
+
+    private void setItemImage(String imagePath, String itemName) {
+        if (imagePath != null && !imagePath.trim().isEmpty()) {
+            try {
+                // Use the Image constructor with backgroundLoading=true
+                Image image = new Image(getClass().getResource(imagePath).toExternalForm(), true);
+                itemImage.setImage(image);
+
+                // Add a listener to handle potential loading errors
+                image.errorProperty().addListener((obs, oldError, newError) -> {
+                    if (newError) {
+                        System.err.println("Помилка фонового завантаження зображення для страви: " + itemName + " з шляху: " + imagePath);
+                        setDefaultItemImage(itemName);
+                    }
+                });
+            } catch (Exception e) {
+                System.err.println("Помилка створення шляху до зображення: " + itemName + " з шляху: " + imagePath + ": " + e.getMessage());
+                setDefaultItemImage(itemName);
+            }
+        } else {
+            setDefaultItemImage(itemName);
+        }
+    }
+
+    private void setDefaultItemImage(String itemName) {
+        try {
+            String defaultImagePath = "/images/fast-food.jpg";
+            // Load the default image in the background as well
+            Image defaultImage = new Image(getClass().getResource(defaultImagePath).toExternalForm(), true);
+            itemImage.setImage(defaultImage);
+
+            defaultImage.errorProperty().addListener((obs, oldError, newError) -> {
+                if (newError) {
+                    System.err.println("Помилка фонового завантаження дефолтного зображення для страви: " + itemName);
+                    itemImage.setImage(null);
+                }
+            });
+        } catch (Exception e) {
+            System.err.println("Помилка створення шляху до дефолтного зображення: " + itemName + ": " + e.getMessage());
+            itemImage.setImage(null);
+        }
     }
 
     private void updatePrice() {
@@ -166,8 +193,6 @@ public class MenuItemCardController {
             itemPrice.setText(String.format("%.2f грн", finalPrice));
         }
     }
-
-
 
     private int getQuantity() {
         if (quantity == null) {
@@ -181,26 +206,33 @@ public class MenuItemCardController {
             return 0;
         }
     }
+
     private void addToCart() {
         User currentUser = AuthenticatedUser.getInstance().getCurrentUser();
         if (currentUser == null) {
-            System.err.println("Будь ласка, увійдіть у систему, щоб додати елемент до кошика.");
+            AlertController.showAlert("Будь ласка, увійдіть у систему, щоб додати елемент до кошика");
             return;
         }
 
         if (currentMenuItem == null) {
-            System.err.println("Товар не вибрано");
+            AlertController.showAlert("Товар не вибрано");
             return;
         }
 
         if (portionSizeComboBox.getValue() == null) {
-            System.err.println("Оберіть розмір порції");
+            AlertController.showAlert("Оберіть розмір порції");
             return;
         }
 
         int qty = getQuantity();
         if (qty <= 0) {
-            System.err.println("Виберіть коректну кількість (більше 0).");
+            AlertController.showAlert("Виберіть коректну кількість (більше 0)");
+            return;
+        }
+
+        // Перевіряємо чи товар вже є в кошику
+        if (cartRepository.existsByUserIdAndItemId(currentUser.id(), currentMenuItem.itemId())) {
+            AlertController.showAlert("Цей товар вже є у вашому кошику");
             return;
         }
 
@@ -220,14 +252,12 @@ public class MenuItemCardController {
 
             Cart savedCartItem = cartRepository.create(cartItem);
             if (savedCartItem != null) {
-                System.out.println("Товар додано до кошика: " + currentMenuItem.name() + " (кількість: " + qty + ")");
+                AlertController.showAlert("Товар додано до кошика");
             } else {
-                System.err.println("Помилка додавання до кошика");
+                AlertController.showAlert("Помилка додавання до кошика");
             }
         } catch (Exception e) {
-            System.err.println("Помилка додавання до кошика: " + e.getMessage());
-            e.printStackTrace();
+            AlertController.showAlert("Помилка додавання до кошика: " + e.getMessage());
         }
     }
-
 }

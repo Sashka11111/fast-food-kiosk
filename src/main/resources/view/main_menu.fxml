@@ -37,7 +37,7 @@
                <graphic>
                   <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                      <image>
-                        <Image url="@../images/cart.png" />
+                        <Image url="@../images/cart-home.png" />
                      </image>
                   </ImageView>
                </graphic>
@@ -78,7 +78,7 @@
     </AnchorPane>
     <AnchorPane layoutX="230.0" layoutY="80.0" prefHeight="720.0" prefWidth="1040.0">
          <children>
-        <StackPane fx:id="contentArea" layoutX="20.0" prefHeight="720.0" prefWidth="1000.0" styleClass="side-menu" stylesheets="@../design/style.css" />
+        <StackPane fx:id="contentArea" layoutX="20.0" prefHeight="720.0" prefWidth="1000.0" />
          </children>
     </AnchorPane>
       <AnchorPane layoutX="60.0" layoutY="45.0" prefHeight="76.0" prefWidth="79.0" styleClass="image-view" stylesheets="@../design/style.css">

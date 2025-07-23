@@ -19,6 +19,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import javax.sql.DataSource;
 
 public class AuthorizationController {
 
@@ -40,7 +41,8 @@ public class AuthorizationController {
   private UserRepository userRepository;
 
   public AuthorizationController() {
-    this.userRepository = new UserRepositoryImpl(DatabaseConnection.getStaticDataSource());
+    DataSource dataSource = DatabaseConnection.getInstance().getDataSource();
+    this.userRepository = new UserRepositoryImpl(dataSource);
   }
 
   @FXML

@@ -24,9 +24,6 @@ public record MenuItem(
     return itemId;
   }
 
-  /**
-   * Обчислює ціну для конкретного розміру порції
-   */
   public BigDecimal getPriceForSize(PortionSize size) {
     if (size == null) {
       size = defaultPortionSize != null ? defaultPortionSize : PortionSize.MEDIUM;

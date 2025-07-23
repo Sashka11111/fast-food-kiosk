@@ -8,6 +8,8 @@ import java.util.UUID;
 public interface PaymentRepository {
     Payment findById(UUID id) throws EntityNotFoundException;
     List<Payment> findAll();
-    Payment save(Payment payment);
+    Payment findByCartId(UUID cartId) throws EntityNotFoundException;
+    Payment create(Payment payment);
+    Payment update(Payment payment) throws EntityNotFoundException;
     void deleteById(UUID id) throws EntityNotFoundException;
 }

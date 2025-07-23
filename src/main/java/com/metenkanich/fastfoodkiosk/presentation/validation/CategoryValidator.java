@@ -67,8 +67,6 @@ public class CategoryValidator {
 
       // Перевіряємо, чи знайдена категорія не є тією самою, що ми редагуємо
       if (existingCategory != null) {
-        // Якщо ми створюємо нову категорію (categoryId == null) або
-        // редагуємо існуючу, але знайдена категорія має інший ID
         if (categoryId == null || !existingCategory.categoryId().equals(categoryId)) {
           errors.add("Назва \"" + name + "\" вже використовується іншою категорією");
           return new ValidationResult(false, errors);

@@ -6,12 +6,16 @@ import com.metenkanich.fastfoodkiosk.persistence.connection.DatabaseConnection;
 import com.metenkanich.fastfoodkiosk.persistence.entity.Cart;
 import com.metenkanich.fastfoodkiosk.persistence.entity.MenuItem;
 import com.metenkanich.fastfoodkiosk.persistence.entity.Order;
+import com.metenkanich.fastfoodkiosk.persistence.entity.Payment;
 import com.metenkanich.fastfoodkiosk.persistence.entity.User;
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.OrderStatus;
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentMethod;
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentStatus;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.MenuItemRepository;
 import com.metenkanich.fastfoodkiosk.persistence.repository.impl.CartRepositoryImpl;
 import com.metenkanich.fastfoodkiosk.persistence.repository.impl.MenuItemRepositoryImpl;
 import com.metenkanich.fastfoodkiosk.persistence.repository.impl.OrderRepositoryImpl;
+import com.metenkanich.fastfoodkiosk.persistence.repository.impl.PaymentRepositoryImpl;
 import com.metenkanich.fastfoodkiosk.presentation.validation.CartValidator;
 import com.metenkanich.fastfoodkiosk.presentation.validation.OrderValidator;
 import com.metenkanich.fastfoodkiosk.presentation.validation.ValidationResult;
@@ -20,10 +24,9 @@ import java.util.UUID;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.control.Button;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.control.TextArea;
-import javafx.scene.control.TextField;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.GridPane;
@@ -32,6 +35,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import javax.sql.DataSource;
 
 public class CartController {
 
@@ -48,26 +52,23 @@ public class CartController {
     private Label totalAmountLabel;
 
     @FXML
-    private TextArea deliveryAddressArea;
-
-    @FXML
-    private TextArea notesArea;
-
-    @FXML
-    private TextField phoneNumberField;
-
-    @FXML
     private Button placeOrderButton;
+
+    @FXML
+    private ComboBox<PaymentMethod> paymentMethodComboBox;
 
     private CartRepositoryImpl cartRepository;
     private MenuItemRepository menuItemRepository;
     private OrderRepositoryImpl orderRepository;
+    private PaymentRepositoryImpl paymentRepository;
     private List<Cart> cartItems;
 
     public CartController() {
-        this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getStaticDataSource());
-        this.menuItemRepository = new MenuItemRepositoryImpl(DatabaseConnection.getStaticDataSource());
-        this.orderRepository = new OrderRepositoryImpl(DatabaseConnection.getStaticDataSource());
+        DataSource dataSource = DatabaseConnection.getInstance().getDataSource();
+        this.cartRepository = new CartRepositoryImpl(dataSource);
+        this.menuItemRepository = new MenuItemRepositoryImpl(dataSource);
+        this.orderRepository = new OrderRepositoryImpl(dataSource);
+        this.paymentRepository = new PaymentRepositoryImpl(dataSource);
     }
 
     @FXML
@@ -77,6 +78,12 @@ public class CartController {
         } else {
             System.err.println("placeOrderButton is null in CartController.initialize");
         }
+
+        if (paymentMethodComboBox != null) {
+            paymentMethodComboBox.getItems().addAll(PaymentMethod.values());
+            paymentMethodComboBox.setValue(PaymentMethod.CASH); // Значення за замовчуванням
+        }
+
         loadCartItems();
     }
 
@@ -103,7 +110,7 @@ public class CartController {
 
         int column = 0;
         int row = 0;
-        int cardsPerRow = 3;
+        int cardsPerRow = 1;
         double totalAmount = 0.0;
 
         cartGridPane.getColumnConstraints().clear();
@@ -172,7 +179,7 @@ public class CartController {
         }
 
         if (cartItems == null || cartItems.isEmpty()) {
-            cartLabel.setText("Наразі Ваш кошик порожній");
+            AlertController.showAlert("Кошик порожній\n\nДодайте страви до кошика перед оформленням замовлення.");
             return;
         }
 
@@ -185,12 +192,12 @@ public class CartController {
             }
         }
 
-        String deliveryAddress = deliveryAddressArea.getText().trim();
-        if (deliveryAddress.isEmpty()) {
-            AlertController.showAlert("Введіть адресу доставки");
+        PaymentMethod selectedPaymentMethod = paymentMethodComboBox.getValue();
+        if (selectedPaymentMethod == null) {
+            AlertController.showAlert("Оберіть спосіб оплати\n\nБудь ласка, виберіть спосіб оплати зі списку.");
             return;
         }
-        
+
         BigDecimal totalPrice = cartItems.stream()
             .map(Cart::subtotal)
             .map(BigDecimal::valueOf)
@@ -200,7 +207,7 @@ public class CartController {
             .collect(Collectors.toList());
 
         Order order = new Order(
-            UUID.randomUUID(),
+            null,
             currentUser.id(),
             totalPrice,
             OrderStatus.PENDING,
@@ -213,17 +220,42 @@ public class CartController {
             return;
         }
 
-        Order createdOrder = orderRepository.save(order);
+        Order createdOrder = orderRepository.create(order);
         if (createdOrder != null) {
-            cartRepository.markCartItemsAsOrdered(cartIds);
+            boolean allPaymentsCreated = true;
+            for (Cart cartItem : cartItems) {
+                Payment payment = new Payment(
+                    null,
+                    cartItem.cartId(),
+                    selectedPaymentMethod.getLabel(),
+                    PaymentStatus.PENDING,
+                    LocalDateTime.now()
+                );
 
-            deliveryAddressArea.clear();
-            notesArea.clear();
-            phoneNumberField.clear();
-            AlertController.showAlert("Замовлення успішно оформлено!");
-            loadCartItems();
+                Payment createdPayment = paymentRepository.create(payment);
+                if (createdPayment == null) {
+                    allPaymentsCreated = false;
+                    break;
+                }
+            }
+
+            if (allPaymentsCreated) {
+                // Позначаємо елементи кошика як замовлені
+                cartRepository.markCartItemsAsOrdered(cartIds);
+                paymentMethodComboBox.setValue(PaymentMethod.CASH);
+
+                // Вибір повідомлення залежно від способу оплати
+                String successMessage = selectedPaymentMethod == PaymentMethod.CARD
+                    ? "Замовлення успішно оформлено!\nБудь ласка, прикладіть картку до терміналу."
+                    : "Замовлення успішно оформлено!\nБудь ласка, підійдіть до каси для оплати.";
+                AlertController.showAlert(successMessage);
+
+                loadCartItems();
+            } else {
+                AlertController.showAlert("Помилка при створенні оплати");
+            }
         } else {
-            cartLabel.setText("Помилка при оформленні замовлення");
+            AlertController.showAlert("Помилка при створенні замовлення");
         }
     }
 }

@@ -9,13 +9,11 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 public class MenuItemValidator {
-  // Constants for validation
   private static final int MIN_NAME_LENGTH = 2;
   private static final int MAX_NAME_LENGTH = 100;
   private static final int MAX_DESCRIPTION_LENGTH = 500;
   private static final String NAME_PATTERN = "^[a-zA-Zа-яА-ЯёЁіІїЇєЄґҐ\\s-]+$";
 
-  // Validate item ID
   public static ValidationResult isItemIdValid(UUID itemId, boolean isExisting) {
     if (isExisting && itemId == null) {
       List<String> errors = new ArrayList<>();
@@ -25,7 +23,6 @@ public class MenuItemValidator {
     return new ValidationResult(true);
   }
 
-  // Validate name
   public static ValidationResult isNameValid(String name) {
     List<String> errors = new ArrayList<>();
     if (name == null) {
@@ -44,7 +41,6 @@ public class MenuItemValidator {
     return new ValidationResult(errors.isEmpty(), errors);
   }
 
-  // Validate description
   public static ValidationResult isDescriptionValid(String description) {
     List<String> errors = new ArrayList<>();
     if (description != null && description.length() > MAX_DESCRIPTION_LENGTH) {
@@ -53,7 +49,6 @@ public class MenuItemValidator {
     return new ValidationResult(errors.isEmpty(), errors);
   }
 
-  // Validate price
   public static ValidationResult isPriceValid(BigDecimal price) {
     List<String> errors = new ArrayList<>();
     if (price == null) {
@@ -66,7 +61,6 @@ public class MenuItemValidator {
     return new ValidationResult(errors.isEmpty(), errors);
   }
 
-  // Validate name uniqueness
   public static ValidationResult isNameUnique(String name, UUID itemId, MenuItemRepositoryImpl repository) {
     ValidationResult nameValidation = isNameValid(name);
     if (!nameValidation.isValid()) {
@@ -98,7 +92,6 @@ public class MenuItemValidator {
     return new ValidationResult(true);
   }
 
-  // Full validation of MenuItem object
   public static ValidationResult isMenuItemValid(MenuItem menuItem, boolean isExisting, MenuItemRepositoryImpl repository) {
     if (menuItem == null) {
       List<String> errors = new ArrayList<>();
@@ -108,42 +101,35 @@ public class MenuItemValidator {
 
     List<String> errors = new ArrayList<>();
 
-    // Validate item ID
     ValidationResult itemIdResult = isItemIdValid(menuItem.itemId(), isExisting);
     if (!itemIdResult.isValid()) {
       errors.addAll(itemIdResult.getErrors());
     }
 
-    // Validate name
     ValidationResult nameResult = isNameValid(menuItem.name());
     if (!nameResult.isValid()) {
       errors.addAll(nameResult.getErrors());
     }
 
-    // Validate name uniqueness
     ValidationResult nameUniqueResult = isNameUnique(menuItem.name(), menuItem.itemId(), repository);
     if (!nameUniqueResult.isValid()) {
       errors.addAll(nameUniqueResult.getErrors());
     }
 
-    // Validate description
     ValidationResult descriptionResult = isDescriptionValid(menuItem.description());
     if (!descriptionResult.isValid()) {
       errors.addAll(descriptionResult.getErrors());
     }
 
-    // Validate price
     ValidationResult priceResult = isPriceValid(menuItem.price());
     if (!priceResult.isValid()) {
       errors.addAll(priceResult.getErrors());
     }
 
-    // Validate category ID
     if (menuItem.categoryId() == null) {
       errors.add("Ідентифікатор категорії не може бути відсутнім");
     }
 
-    // Validate isAvailable
     if (menuItem.isAvailable() == null) {
       errors.add("Статус доступності не може бути відсутнім");
     }

@@ -7,6 +7,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Types;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +25,7 @@ public class CategoryRepositoryImpl implements CategoryRepository {
     String query = "SELECT * FROM Categories WHERE category_id = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-      preparedStatement.setString(1, id.toString());
+      preparedStatement.setObject(1, id, Types.OTHER);
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         if (resultSet.next()) {
           return mapToCategory(resultSet);
@@ -72,22 +73,14 @@ public class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @Override
-  public Category save(Category category) {
-    String query = category.categoryId() == null
-        ? "INSERT INTO Categories (category_id, category_name, image_path) VALUES (?, ?, ?)"
-        : "UPDATE Categories SET category_name = ?, image_path = ? WHERE category_id = ?";
+  public Category create(Category category) {
+    String query = "INSERT INTO Categories (category_id, category_name, image_path) VALUES (?, ?, ?)";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-      UUID id = category.categoryId() == null ? UUID.randomUUID() : category.categoryId();
-      int index = 1;
-      if (category.categoryId() == null) {
-        preparedStatement.setString(index++, id.toString());
-      }
-      preparedStatement.setString(index++, category.categoryName());
-      preparedStatement.setString(index++, category.imagePath());
-      if (category.categoryId() != null) {
-        preparedStatement.setString(index, id.toString());
-      }
+      UUID id = UUID.randomUUID();
+      preparedStatement.setObject(1, id, Types.OTHER);
+      preparedStatement.setString(2, category.categoryName());
+      preparedStatement.setString(3, category.imagePath());
       preparedStatement.executeUpdate();
       return new Category(id, category.categoryName(), category.imagePath());
     } catch (SQLException e) {
@@ -97,11 +90,33 @@ public class CategoryRepositoryImpl implements CategoryRepository {
   }
 
   @Override
+  public Category update(Category category) throws EntityNotFoundException {
+    if (category.categoryId() == null) {
+      throw new EntityNotFoundException("ID категорії не може бути null для оновлення");
+    }
+    String query = "UPDATE Categories SET category_name = ?, image_path = ? WHERE category_id = ?";
+    try (Connection connection = dataSource.getConnection();
+        PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+      preparedStatement.setString(1, category.categoryName());
+      preparedStatement.setString(2, category.imagePath());
+      preparedStatement.setObject(3, category.categoryId(), Types.OTHER);
+      int affectedRows = preparedStatement.executeUpdate();
+      if (affectedRows == 0) {
+        throw new EntityNotFoundException("Категорію з ID " + category.categoryId() + " не знайдено для оновлення");
+      }
+      return category;
+    } catch (SQLException e) {
+      e.printStackTrace();
+      throw new EntityNotFoundException("Помилка під час оновлення категорії з ID " + category.categoryId(), e);
+    }
+  }
+
+  @Override
   public void deleteById(UUID id) throws EntityNotFoundException {
     String query = "DELETE FROM Categories WHERE category_id = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-      preparedStatement.setString(1, id.toString());
+      preparedStatement.setObject(1, id, Types.OTHER);
       int affectedRows = preparedStatement.executeUpdate();
       if (affectedRows == 0) {
         throw new EntityNotFoundException("Категорію з ID " + id + " не знайдено");

@@ -23,10 +23,6 @@ public class AlertController {
     void initialize() {
         closeButton.setOnAction(event -> stage.close());
     }
-    @FXML
-    private void handleOkAction() {
-        stage.close();
-    }
 
     public void setStage(Stage stage) {
         this.stage = stage;

@@ -1,8 +1,5 @@
 package com.metenkanich.fastfoodkiosk.persistence.entity.enums;
 
-/**
- * Enum для розмірів порцій страв
- */
 public enum PortionSize {
     SMALL("Маленька", 0.8),
     MEDIUM("Середня", 1.0),

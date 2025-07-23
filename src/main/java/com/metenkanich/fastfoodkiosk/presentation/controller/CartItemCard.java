@@ -14,9 +14,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-
-import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import javax.sql.DataSource;
 
 public class CartItemCard {
 
@@ -30,9 +29,6 @@ public class CartItemCard {
     private Label menuItemPrice;
 
     @FXML
-    private Label menuItemCalories;
-
-    @FXML
     private Label quantityLabel;
 
     @FXML
@@ -44,7 +40,8 @@ public class CartItemCard {
     private CartRepositoryImpl cartRepository;
 
     public CartItemCard() {
-        this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getStaticDataSource());
+        DataSource dataSource = DatabaseConnection.getInstance().getDataSource();
+        this.cartRepository = new CartRepositoryImpl(dataSource);
     }
 
     public void setCartItem(Cart cartItem, MenuItem menuItem) {
@@ -57,19 +54,12 @@ public class CartItemCard {
         if (menuItemPrice != null) {
             menuItemPrice.setText(String.format("%.2f грн", cartItem.subtotal()));
         }
-//        if (menuItemCalories != null) {
-//            menuItemCalories.setText(menuItem.calories() != null ? menuItem.calories() + " ккал" : "0 ккал");
-//        }
-//        if (quantityLabel != null) {
-//            quantityLabel.setText("Кількість: " + cartItem.quantity());
-//        }
-//        if (menuImage != null) {
-//            if (menuItem.imagePath() != null && menuItem.imagePath().length > 0) {
-//                menuImage.setImage(new Image(new ByteArrayInputStream(menuItem.image())));
-//            } else {
-//                menuImage.setImage(new Image(getClass().getResourceAsStream("/data/ingredients.png")));
-//            }
-//        }
+        if (quantityLabel != null) {
+            quantityLabel.setText("Кількість: " + cartItem.quantity());
+        }
+
+        // Встановлення зображення
+        setItemImage(menuItem.imagePath(), menuItem.name());
 
         // Налаштування кнопки видалення
         if (deleteFromCartButton != null) {
@@ -77,30 +67,42 @@ public class CartItemCard {
         }
     }
 
-    public void setParentController(CartController controller) {
-        this.parentController = controller;
+    private void setItemImage(String imagePath, String itemName) {
+        if (imagePath != null && !imagePath.trim().isEmpty()) {
+            try {
+                Image image = new Image(getClass().getResourceAsStream(imagePath));
+                if (!image.isError()) {
+                    menuImage.setImage(image);
+                } else {
+                    System.err.println("Помилка завантаження зображення для страви: " + itemName + " з шляху: " + imagePath);
+                    setDefaultItemImage(itemName);
+                }
+            } catch (Exception e) {
+                System.err.println("Помилка завантаження зображення для страви: " + itemName + " з шляху: " + imagePath + ": " + e.getMessage());
+                setDefaultItemImage(itemName);
+            }
+        } else {
+            setDefaultItemImage(itemName);
+        }
     }
 
-    @FXML
-    private void showDetails() {
+    private void setDefaultItemImage(String itemName) {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/menuItemDetails.fxml"));
-            Scene scene = new Scene(loader.load(), 300, 450);
-            Stage stage = new Stage();
-            stage.getIcons().add(new Image(getClass().getResourceAsStream("/data/icon.png")));
-            stage.setTitle("Деталі страви");
-            stage.setScene(scene);
-            stage.initModality(Modality.APPLICATION_MODAL);
-            stage.setResizable(false);
-
-            MenuItemDetailsController controller = loader.getController();
-            controller.setMenuItem(menuItem);
-
-            stage.showAndWait();
-        } catch (IOException e) {
-            System.err.println("Помилка завантаження MenuItemDetails.fxml: " + e.getMessage());
-            e.printStackTrace();
+            Image defaultImage = new Image(getClass().getResourceAsStream("/images/fast-food.jpg"));
+            if (!defaultImage.isError()) {
+                menuImage.setImage(defaultImage);
+            } else {
+                System.err.println("Помилка завантаження дефолтного зображення для страви: " + itemName);
+                menuImage.setImage(null);
+            }
+        } catch (Exception e) {
+            System.err.println("Помилка завантаження дефолтного зображення для страви: " + itemName + ": " + e.getMessage());
+            menuImage.setImage(null);
         }
+    }
+
+    public void setParentController(CartController controller) {
+        this.parentController = controller;
     }
 
     @FXML

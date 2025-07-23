@@ -6,41 +6,38 @@ import javax.sql.DataSource;
 
 public class DatabaseConnection {
 
-  private static final String JDBC_URL = "jdbc:postgresql://localhost:5432/fast_food_kiosk";
-  private static final String USERNAME = "postgres";
-  private static final String PASSWORD = "";
-
+  private static final String JDBC_URL = "jdbc:sqlite:db/fast-food-kiosk.sqlite";
   private static DatabaseConnection instance;
   private static HikariDataSource dataSource;
 
   private DatabaseConnection() {
+    // Приватний конструктор для Singleton
   }
 
   public static synchronized DatabaseConnection getInstance() {
     if (instance == null) {
       instance = new DatabaseConnection();
+      initializeDataSource(); // Ініціалізуємо одразу
     }
     return instance;
   }
 
-  public static void initializeDataSource() {
-    HikariConfig config = new HikariConfig();
-    config.setJdbcUrl(JDBC_URL);
-    config.setUsername(USERNAME);
-    config.setPassword(PASSWORD);
-    dataSource = new HikariDataSource(config);
+  private static void initializeDataSource() {
+    if (dataSource == null) {
+      HikariConfig config = new HikariConfig();
+      config.setJdbcUrl(JDBC_URL);
+      config.setMaximumPoolSize(10);
+      config.setMinimumIdle(2);
+      config.setConnectionTimeout(30000);
+      config.setIdleTimeout(600000);
+      config.setMaxLifetime(1800000);
+      dataSource = new HikariDataSource(config);
+    }
   }
 
   public DataSource getDataSource() {
     if (dataSource == null) {
-      initializeDataSource(); // Ініціалізація джерела даних
-    }
-    return dataSource;
-  }
-
-  public static DataSource getStaticDataSource() {
-    if (dataSource == null) {
-      initializeDataSource(); // Ініціалізація джерела даних
+      getInstance();
     }
     return dataSource;
   }
@@ -48,6 +45,7 @@ public class DatabaseConnection {
   public void closePool() {
     if (dataSource != null) {
       dataSource.close();
+      dataSource = null;
     }
   }
 }

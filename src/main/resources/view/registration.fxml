@@ -14,11 +14,11 @@
   <children>
     <AnchorPane layoutX="334.0" prefHeight="500.0" prefWidth="466.0">
       <children>
-        <PasswordField fx:id="passwordField" layoutX="101.0" layoutY="248.0" prefHeight="42.0" prefWidth="263.0" promptText="Пароль" styleClass="textField" stylesheets="@../design/style.css">
+        <PasswordField fx:id="passwordField" layoutX="101.0" layoutY="248.0" prefHeight="42.0" prefWidth="263.0" promptText="Пароль" styleClass="text-fields" stylesheets="@../design/style.css">
           <font>
             <Font size="14.0" />
           </font></PasswordField>
-        <TextField fx:id="loginField" layoutX="101.0" layoutY="132.0" prefHeight="42.0" prefWidth="263.0" promptText="Логін" styleClass="textField" stylesheets="@../design/style.css">
+        <TextField fx:id="loginField" layoutX="101.0" layoutY="132.0" prefHeight="42.0" prefWidth="263.0" promptText="Логін" styleClass="text-fields" stylesheets="@../design/style.css">
           <font>
             <Font size="14.0" />
           </font></TextField>
@@ -52,7 +52,7 @@
             <Font name="Georgia" size="30.0" />
           </font>
         </Label>
-            <TextField fx:id="emailField" layoutX="101.0" layoutY="192.0" prefHeight="42.0" prefWidth="263.0" promptText="Email" styleClass="textField" stylesheets="@../design/style.css">
+            <TextField fx:id="emailField" layoutX="101.0" layoutY="192.0" prefHeight="42.0" prefWidth="263.0" promptText="Email" styleClass="text-fields" stylesheets="@../design/style.css">
                <font>
                   <Font size="14.0" />
                </font>

@@ -6,21 +6,18 @@ import com.metenkanich.fastfoodkiosk.persistence.entity.enums.Role;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.UserRepository;
 import java.sql.Timestamp;
 import java.sql.Types;
-import java.time.format.DateTimeFormatter;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 public class UserRepositoryImpl implements UserRepository {
   private final DataSource dataSource;
-  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   public UserRepositoryImpl(DataSource dataSource) {
     this.dataSource = dataSource;
   }
@@ -30,7 +27,7 @@ public class UserRepositoryImpl implements UserRepository {
     String query = "SELECT * FROM Users WHERE user_id = ?";
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-      preparedStatement.setObject(1, id, Types.OTHER); // Use setObject for UUID
+      preparedStatement.setObject(1, id, Types.OTHER);
       try (ResultSet resultSet = preparedStatement.executeQuery()) {
         if (resultSet.next()) {
           return mapToUser(resultSet);
@@ -83,12 +80,12 @@ public class UserRepositoryImpl implements UserRepository {
     try (Connection connection = dataSource.getConnection();
         PreparedStatement preparedStatement = connection.prepareStatement(query)) {
       UUID id = UUID.randomUUID();
-      preparedStatement.setObject(1, id, Types.OTHER); // Для UUID
+      preparedStatement.setObject(1, id, Types.OTHER);
       preparedStatement.setString(2, user.username());
       preparedStatement.setString(3, user.password());
       preparedStatement.setString(4, user.role().name());
       preparedStatement.setString(5, user.email());
-      preparedStatement.setTimestamp(6, Timestamp.valueOf(user.createdAt())); // Використовуємо Timestamp
+      preparedStatement.setTimestamp(6, Timestamp.valueOf(user.createdAt()));
       preparedStatement.executeUpdate();
       new User(id, user.username(), user.password(), user.role(), user.email(), user.createdAt());
     } catch (SQLException e) {
@@ -105,7 +102,7 @@ public class UserRepositoryImpl implements UserRepository {
       preparedStatement.setString(2, user.password());
       preparedStatement.setString(3, user.role().name());
       preparedStatement.setString(4, user.email());
-      preparedStatement.setObject(5, user.id(), Types.OTHER); // Use setObject for UUID
+      preparedStatement.setObject(5, user.id(), Types.OTHER);
       int affectedRows = preparedStatement.executeUpdate();
       if (affectedRows == 0) {
         throw new EntityNotFoundException("Користувача з ID " + user.id() + " не знайдено");

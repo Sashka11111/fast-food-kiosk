@@ -25,15 +25,10 @@ public class ValidationResult {
         return errors;
     }
 
-    public void addError(String error) {
-        errors.add(error);
-    }
-
     public String getErrorMessage() {
         if (errors.isEmpty()) {
             return "";
         }
-        // Додаємо маркери до кожного повідомлення
         StringBuilder formattedErrors = new StringBuilder();
         for (int i = 0; i < errors.size(); i++) {
             formattedErrors.append("• ").append(errors.get(i));

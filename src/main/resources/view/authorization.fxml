@@ -14,11 +14,11 @@
   <children>
     <AnchorPane layoutX="334.0" prefHeight="500.0" prefWidth="463.0" style="-fx-background-color: #f5f8fc;">
       <children>
-        <PasswordField fx:id="passwordField" layoutX="101.0" layoutY="235.0" prefHeight="42.0" prefWidth="263.0" promptText="Пароль" styleClass="textField" stylesheets="@../design/style.css">
+        <PasswordField fx:id="passwordField" layoutX="101.0" layoutY="235.0" prefHeight="42.0" prefWidth="263.0" promptText="Пароль" styleClass="text-fields" stylesheets="@../design/style.css">
           <font>
             <Font size="14.0" />
           </font></PasswordField>
-        <TextField fx:id="loginTextField" layoutX="101.0" layoutY="169.0" prefHeight="42.0" prefWidth="263.0" promptText="Логін" styleClass="textField" stylesheets="@../design/style.css">
+        <TextField fx:id="loginTextField" layoutX="101.0" layoutY="169.0" prefHeight="42.0" prefWidth="263.0" promptText="Логін" styleClass="text-fields" stylesheets="@../design/style.css">
           <font>
             <Font size="14.0" />
           </font></TextField>

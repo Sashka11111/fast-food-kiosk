@@ -6,6 +6,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
@@ -16,14 +17,16 @@ public class Main extends Application {
   @Override
   public void start(Stage primaryStage) throws Exception {
     Application.setUserAgentStylesheet(new PrimerLight().getUserAgentStylesheet());
+    primaryStage.getIcons().add(new Image(getClass().getResourceAsStream("/images/burger.png")));
     FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/authorization.fxml"));
     Parent root = loader.load();
-    primaryStage.initStyle(StageStyle.UNDECORATED); // Відключення верхнього меню
-    primaryStage.setScene(new Scene(root, 800, 500)); // Set fixed size 1280x800
-    primaryStage.setResizable(false); // Disable window resizing
+    primaryStage.initStyle(StageStyle.UNDECORATED);
+    primaryStage.setScene(new Scene(root, 800, 500));
+    primaryStage.setResizable(false);
 
     primaryStage.show();
   }
+
 
   @Override
   public void stop() throws Exception {
@@ -35,14 +38,14 @@ public class Main extends Application {
 
   public static void main(String[] args) {
     System.setProperty("file.encoding", "UTF-8");
-
+    // Ініціалізуємо DatabaseConnection на початку
     databaseConnection = DatabaseConnection.getInstance();
-    databaseConnection.initializeDataSource(); // Initialize before launching GUI
-
-    launch(args);
-
-    if (databaseConnection != null) {
-      databaseConnection.closePool(); // Close after exit
+    try {
+      launch(args);
+    } finally {
+      if (databaseConnection != null) {
+        databaseConnection.closePool();
+      }
     }
   }
 }

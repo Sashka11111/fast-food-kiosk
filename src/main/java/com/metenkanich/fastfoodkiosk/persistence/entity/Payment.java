@@ -1,14 +1,12 @@
 package com.metenkanich.fastfoodkiosk.persistence.entity;
 
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentStatus;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
 public record Payment(
     UUID id,
-    UUID orderId,
-    BigDecimal amount,
+    UUID cartId,
     String paymentMethod,
     PaymentStatus paymentStatus,
     LocalDateTime createdAt

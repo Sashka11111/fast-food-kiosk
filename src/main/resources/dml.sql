@@ -1,4 +1,3 @@
--- Вставка користувачів (без змін, оскільки вони коректні)
 INSERT INTO Users (user_id, username, password, role, email)
 VALUES
     ('c8a3e883-5049-46c7-94b1-9f1cdb9a4f95', 'Admin', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', 'ADMIN', 'admin@gmail.com'),
@@ -12,7 +11,6 @@ VALUES
     ('6ba7b817-9dad-11d1-80b4-00c04fd430c8', 'user7', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', 'USER', 'nataliya.l@email.com'),
     ('6ba7b818-9dad-11d1-80b4-00c04fd430c9', 'user8', '3b612c75a7b5048a435fb6ec81e52ff92d6d795a8b5a9c17070f6a63c97a53b2', 'USER', 'viktor.g@email.com');
 
--- Вставка скороченого списку категорій (5 замість 10)
 INSERT INTO Categories (category_id, category_name, image_path)
 VALUES
     ('7c4f14d0-9dad-11d1-80b4-00c04fd430d0', 'Бургери', '/images/categories/burgers.png'),
@@ -21,7 +19,6 @@ VALUES
     ('7c4f14d3-9dad-11d1-80b4-00c04fd430d3', 'Напої', '/images/categories/drinks.png'),
     ('7c4f14d4-9dad-11d1-80b4-00c04fd430d4', 'Десерти', '/images/categories/desserts.png');
 
--- Вставка страв із виправленими category_id (10 страв, по 2 на категорію)
 INSERT INTO MenuItems (item_id, name, description, price, category_id, is_available, image_path, default_portion_size)
 VALUES
     ('550e8400-e29b-41d4-a716-446655440001', 'Бургер Класичний', 'Бургер з яловичиною і овочами', 140.50, '7c4f14d0-9dad-11d1-80b4-00c04fd430d0', TRUE, NULL, 'MEDIUM'),
@@ -35,28 +32,24 @@ VALUES
     ('550e8400-e29b-41d4-a716-446655440009', 'Чізкейк', 'Класичний чізкейк з ягідним соусом', 100.00, '7c4f14d4-9dad-11d1-80b4-00c04fd430d4', TRUE, NULL, 'MEDIUM'),
     ('550e8400-e29b-41d4-a716-446655440010', 'Тірамісу', 'Італійський десерт з маскарпоне', 105.50, '7c4f14d4-9dad-11d1-80b4-00c04fd430d4', TRUE, NULL, 'SMALL');
 
--- Вставка замовлень (оновлено для відповідності новим стравам)
 INSERT INTO Orders (order_id, user_id, total_price, status, created_at)
 VALUES
-    ('9e6f0680-9dad-11d1-80b4-00c04fd430f0', 'c8a3e883-5049-46c7-94b1-9f1cdb9a4f95', 270.50, 'PENDING', '2025-04-30 12:30:00+00'), -- Admin: Маргарита + Цезар
-    ('9e6f0681-9dad-11d1-80b4-00c04fd430f1', '6ba7b810-9dad-11d1-80b4-00c04fd430c1', 250.00, 'CONFIRMED', '2025-04-30 13:00:00+00'), -- Sashka: Чізкейк + Кола
-    ('9e6f0682-9dad-11d1-80b4-00c04fd430f2', '6ba7b811-9dad-11d1-80b4-00c04fd430c2', 330.75, 'PENDING', '2025-04-30 13:30:00+00'), -- user2: Пепероні + Сік
-    ('9e6f0683-9dad-11d1-80b4-00c04fd430f3', '6ba7b812-9dad-11d1-80b4-00c04fd430c3', 260.50, 'DELIVERED', '2025-04-30 14:00:00+00'), -- user3: Бургер Класичний + Тірамісу
-    ('9e6f0684-9dad-11d1-80b4-00c04fd430f4', '6ba7b813-9dad-11d1-80b4-00c04fd430c4', 230.25, 'PENDING', '2025-04-30 14:30:00+00'); -- user4: Грецький салат + Чізкейк
+    ('9e6f0680-9dad-11d1-80b4-00c04fd430f0', 'c8a3e883-5049-46c7-94b1-9f1cdb9a4f95', 270.50, 'PENDING', '2025-04-30 12:30:00+00'),
+    ('9e6f0681-9dad-11d1-80b4-00c04fd430f1', '6ba7b810-9dad-11d1-80b4-00c04fd430c1', 250.00, 'CONFIRMED', '2025-04-30 13:00:00+00'),
+    ('9e6f0682-9dad-11d1-80b4-00c04fd430f2', '6ba7b811-9dad-11d1-80b4-00c04fd430c2', 330.75, 'PENDING', '2025-04-30 13:30:00+00'),
+    ('9e6f0683-9dad-11d1-80b4-00c04fd430f3', '6ba7b812-9dad-11d1-80b4-00c04fd430c3', 260.50, 'DELIVERED', '2025-04-30 14:00:00+00'),
+    ('9e6f0684-9dad-11d1-80b4-00c04fd430f4', '6ba7b813-9dad-11d1-80b4-00c04fd430c4', 230.25, 'PENDING', '2025-04-30 14:30:00+00');
 
--- Приклади наповнення таблиці Cart
 INSERT INTO Cart (cart_id, user_id, item_id, quantity, subtotal, is_ordered)
 VALUES
-    ('1c4f14d0-aaaa-11d1-80b4-00c04fd43000', '6ba7b810-9dad-11d1-80b4-00c04fd430c1', '550e8400-e29b-41d4-a716-446655440001', 2, 281.00, FALSE), -- Sashka: 2 Бургери Класичні
-    ('1c4f14d1-aaaa-11d1-80b4-00c04fd43001', '6ba7b811-9dad-11d1-80b4-00c04fd430c2', '550e8400-e29b-41d4-a716-446655440003', 1, 150.50, FALSE), -- user2: 1 Піца Маргарита
-    ('1c4f14d2-aaaa-11d1-80b4-00c04fd43002', '6ba7b812-9dad-11d1-80b4-00c04fd430c3', '550e8400-e29b-41d4-a716-446655440009', 3, 300.00, FALSE), -- user3: 3 Чізкейка
-    ('1c4f14d3-aaaa-11d1-80b4-00c04fd43003', '6ba7b813-9dad-11d1-80b4-00c04fd430c4', '550e8400-e29b-41d4-a716-446655440006', 1, 110.25, TRUE);  -- user4: 1 Грецький салат (вже замовлено)
+    ('1c4f14d0-aaaa-11d1-80b4-00c04fd43000', '6ba7b810-9dad-11d1-80b4-00c04fd430c1', '550e8400-e29b-41d4-a716-446655440001', 2, 281.00, FALSE),
+    ('1c4f14d1-aaaa-11d1-80b4-00c04fd43001', '6ba7b811-9dad-11d1-80b4-00c04fd430c2', '550e8400-e29b-41d4-a716-446655440003', 1, 150.50, FALSE),
+    ('1c4f14d2-aaaa-11d1-80b4-00c04fd43002', '6ba7b812-9dad-11d1-80b4-00c04fd430c3', '550e8400-e29b-41d4-a716-446655440009', 3, 300.00, FALSE),
+    ('1c4f14d3-aaaa-11d1-80b4-00c04fd43003', '6ba7b813-9dad-11d1-80b4-00c04fd430c4', '550e8400-e29b-41d4-a716-446655440006', 1, 110.25, TRUE);
 
--- Вставка платежів (оновлено для відповідності новим замовленням)
-INSERT INTO Payments (id, order_id, amount, payment_method, payment_status, created_at)
+INSERT INTO Payments (id, cart_id, payment_method, payment_status, created_at)
 VALUES
-    ('cf7e1790-9dad-11d1-80b4-00c04fd430c0', '9e6f0680-9dad-11d1-80b4-00c04fd430f0', 270.50, 'CREDIT_CARD', 'PENDING', '2025-04-30 12:30:00+00'),
-    ('cf7e1791-9dad-11d1-80b4-00c04fd430c1', '9e6f0681-9dad-11d1-80b4-00c04fd430f1', 250.00, 'CASH', 'COMPLETED', '2025-04-30 13:00:00+00'),
-    ('cf7e1792-9dad-11d1-80b4-00c04fd430c2', '9e6f0682-9dad-11d1-80b4-00c04fd430f2', 330.75, 'CREDIT_CARD', 'PENDING', '2025-04-30 13:30:00+00'),
-    ('cf7e1793-9dad-11d1-80b4-00c04fd430c3', '9e6f0683-9dad-11d1-80b4-00c04fd430f3', 260.50, 'CASH', 'COMPLETED', '2025-04-30 14:00:00+00'),
-    ('cf7e1794-9dad-11d1-80b4-00c04fd430c4', '9e6f0684-9dad-11d1-80b4-00c04fd430f4', 230.25, 'CREDIT_CARD', 'PENDING', '2025-04-30 14:30:00+00');
+    ('cf7e1790-9dad-11d1-80b4-00c04fd430c0', '1c4f14d0-aaaa-11d1-80b4-00c04fd43000', 'Банківська картка', 'PENDING', '2025-04-30 12:30:00'),
+    ('cf7e1791-9dad-11d1-80b4-00c04fd430c1', '1c4f14d1-aaaa-11d1-80b4-00c04fd43001', 'Готівка', 'COMPLETED', '2025-04-30 13:00:00'),
+    ('cf7e1792-9dad-11d1-80b4-00c04fd430c2', '1c4f14d2-aaaa-11d1-80b4-00c04fd43002', 'Банківська картка', 'PENDING', '2025-04-30 13:30:00'),
+    ('cf7e1793-9dad-11d1-80b4-00c04fd430c3', '1c4f14d3-aaaa-11d1-80b4-00c04fd43003', 'Готівка', 'COMPLETED', '2025-04-30 14:00:00');

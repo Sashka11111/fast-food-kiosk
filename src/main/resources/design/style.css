@@ -1,7 +1,7 @@
-/* Side Menu Styles */
+
 .side-menu {
-    -fx-background-color: white;
-    -fx-background-radius: 20 20 0 0; /* Заокруглення верхніх лівого і правого кутів (верхній лівий, верхній правий, нижній правий, нижній лівий) */
+  -fx-background-color: white;
+  -fx-background-radius: 20 20 0 0;
 }
 .side-btn {
   -fx-background-color: #e47d7e;
@@ -11,7 +11,7 @@
   -fx-padding: 0 10px 0 10px;
 }
 
-.text-field {
+.text-fields {
   -fx-background-color: transparent;
   -fx-border-color: #000000;
   -fx-border-radius: 24px;
@@ -37,14 +37,93 @@
 }
 
 .image-view {
-  -fx-border-color: #e47d7e; /* Колір рамки */
-  -fx-border-width: 2; /* Товщина рамки */
-  -fx-border-radius: 50%; /* Робить рамку круглою */
-  -fx-background-radius: 50%; /* Заокруглює фон, якщо він є */
+  -fx-border-color: #e47d7e;
+  -fx-border-width: 2;
+  -fx-border-radius: 50%;
+  -fx-background-radius: 50%;
 }
 .menu-button {
   -fx-background-color: transparent;
   -fx-alignment: CENTER_LEFT;
   -fx-padding: 0 10px 0 10px;
   -fx-cursor: hand;
+}
+
+.menu-item-card {
+  -fx-background-color: #ffffff;
+  -fx-background-radius: 15;
+  -fx-border-radius: 15;
+  -fx-border-color: rgba(228, 125, 126, 0.1);
+  -fx-border-width: 1;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 8, 0.3, 0, 3);
+  -fx-alignment: center;
+}
+
+.menu-item-card:hover {
+  -fx-effect: dropshadow(gaussian, rgba(228, 125, 126, 0.2), 12, 0.4, 0, 5);
+  -fx-border-color: rgba(228, 125, 126, 0.3);
+}
+
+.portion-size-box {
+  -fx-background-color: #ecf0f1;
+  -fx-background-radius: 10;
+  -fx-padding: 10;
+  -fx-spacing: 5;
+  -fx-alignment: center;
+}
+
+.availability-label {
+  -fx-font-size: 12px;
+  -fx-text-fill: #ffffff;
+  -fx-background-color: #28a745;
+  -fx-background-radius: 10;
+  -fx-padding: 4 10 4 10;
+  -fx-font-weight: bold;
+  -fx-font-family: "Segoe UI", Arial, sans-serif;
+  -fx-effect: dropshadow(gaussian, rgba(40, 167, 69, 0.2), 3, 0.2, 0, 1);
+}
+
+.quantity-spinner {
+  -fx-background-color: #ffffff;
+ }
+
+.quantity-spinner .increment-arrow-button,
+.quantity-spinner .decrement-arrow-button {
+  -fx-cursor: hand;
+}
+
+.quantity-spinner .increment-arrow-button:hover,
+.quantity-spinner .decrement-arrow-button:hover {
+  -fx-background-color: #d65f60;
+}
+
+.add-to-cart-button {
+  -fx-background-color: #e47d7e;
+  -fx-text-fill: white;
+  -fx-background-radius: 25;
+  -fx-cursor: hand;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.3, 0, 2);
+}
+
+.add-to-cart-button:hover {
+  -fx-background-color: #d65f60;
+  -fx-effect: dropshadow(gaussian, rgba(211, 84, 0, 0.3), 8, 0.4, 0, 3);
+}
+
+.add-to-cart-button:pressed {
+  -fx-background-color: #d65f60;
+  -fx-effect: dropshadow(gaussian, rgba(176, 58, 46, 0.2), 5, 0.2, 0, 2);
+}
+
+.progress-indicator .percentage {
+  -fx-fill: #e47d7e;
+}
+
+.progress-indicator .spinner {
+  -fx-border-color: #e47d7e;
+}
+
+.progress-indicator {
+  -fx-outer-border: transparent;
+  -fx-progress-color: #e47d7e;
 }

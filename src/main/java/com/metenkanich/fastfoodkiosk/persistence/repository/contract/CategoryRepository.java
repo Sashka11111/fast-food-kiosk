@@ -9,6 +9,7 @@ public interface CategoryRepository {
   Category findById(UUID id) throws EntityNotFoundException;
   Category findByName(String categoryName) throws EntityNotFoundException;
   List<Category> findAll();
-  Category save(Category category);
+  Category create(Category category);
+  Category update(Category category) throws EntityNotFoundException;
   void deleteById(UUID id) throws EntityNotFoundException;
 }

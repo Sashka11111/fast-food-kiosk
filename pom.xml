@@ -16,9 +16,9 @@
   <dependencies>
 
     <dependency>
-      <groupId>org.postgresql</groupId>
-      <artifactId>postgresql</artifactId>
-      <version>42.6.0</version>
+      <groupId>org.xerial</groupId>
+      <artifactId>sqlite-jdbc</artifactId>
+      <version>3.45.3.0</version>
     </dependency>
 
     <!-- Логгер (SLF4J) -->
