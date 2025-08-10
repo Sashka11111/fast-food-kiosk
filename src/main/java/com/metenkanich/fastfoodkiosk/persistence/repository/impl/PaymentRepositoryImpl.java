@@ -147,12 +147,25 @@ public class PaymentRepositoryImpl implements PaymentRepository {
     }
 
     private Payment mapToPayment(ResultSet resultSet) throws SQLException {
+        String createdAtString = resultSet.getString("created_at");
+        LocalDateTime createdAt;
+
+        try {
+            if (createdAtString.contains("+")) {
+                createdAtString = createdAtString.substring(0, createdAtString.indexOf("+"));
+            }
+            createdAt = LocalDateTime.parse(createdAtString.replace(" ", "T"));
+        } catch (Exception e) {
+            System.err.println("Помилка парсингу дати: " + createdAtString + ", використовуємо поточний час");
+            createdAt = LocalDateTime.now();
+        }
+
         return new Payment(
             UUID.fromString(resultSet.getString("id")),
             UUID.fromString(resultSet.getString("cart_id")),
             PaymentMethod.valueOf(resultSet.getString("payment_method")),
             PaymentStatus.valueOf(resultSet.getString("payment_status")),
-            resultSet.getObject("created_at", LocalDateTime.class)
+            createdAt
         );
     }
 }
