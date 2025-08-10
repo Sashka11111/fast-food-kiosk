@@ -1,5 +1,6 @@
 package com.metenkanich.fastfoodkiosk.persistence.entity;
 
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentMethod;
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentStatus;
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -7,7 +8,7 @@ import java.util.UUID;
 public record Payment(
     UUID id,
     UUID cartId,
-    String paymentMethod,
+    PaymentMethod paymentMethod,
     PaymentStatus paymentStatus,
     LocalDateTime createdAt
 ) implements Entity, Comparable<Payment> {

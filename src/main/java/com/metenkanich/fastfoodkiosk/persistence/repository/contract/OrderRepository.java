@@ -8,6 +8,7 @@ import java.util.UUID;
 public interface OrderRepository {
   Order findById(UUID id) throws EntityNotFoundException;
   List<Order> findAll();
+  List<UUID> findCartIdsByOrderId(UUID orderId);
   Order create(Order order);
   Order update(Order order) throws EntityNotFoundException;
   void deleteById(UUID id) throws EntityNotFoundException;

@@ -2,6 +2,7 @@ package com.metenkanich.fastfoodkiosk.persistence.repository.impl;
 
 import com.metenkanich.fastfoodkiosk.domain.exception.EntityNotFoundException;
 import com.metenkanich.fastfoodkiosk.persistence.entity.Payment;
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentMethod;
 import com.metenkanich.fastfoodkiosk.persistence.entity.enums.PaymentStatus;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.PaymentRepository;
 import java.sql.Connection;
@@ -85,7 +86,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
             System.out.println("DEBUG PaymentRepository: payment ID = " + id + ", cart_id = " + payment.cartId());
             preparedStatement.setObject(1, id, Types.OTHER);
             preparedStatement.setObject(2, payment.cartId(), Types.OTHER);
-            preparedStatement.setString(3, payment.paymentMethod());
+            preparedStatement.setString(3, payment.paymentMethod().name());
             preparedStatement.setString(4, payment.paymentStatus().name());
             preparedStatement.setObject(5, payment.createdAt());
             System.out.println("DEBUG PaymentRepository: Виконуємо executeUpdate()");
@@ -110,7 +111,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             System.out.println("DEBUG PaymentRepository: payment ID = " + payment.id() + ", cart_id = " + payment.cartId());
             preparedStatement.setObject(1, payment.cartId(), Types.OTHER);
-            preparedStatement.setString(2, payment.paymentMethod());
+            preparedStatement.setString(2, payment.paymentMethod().name());
             preparedStatement.setString(3, payment.paymentStatus().name());
             preparedStatement.setObject(4, payment.createdAt());
             preparedStatement.setObject(5, payment.id(), Types.OTHER);
@@ -149,7 +150,7 @@ public class PaymentRepositoryImpl implements PaymentRepository {
         return new Payment(
             UUID.fromString(resultSet.getString("id")),
             UUID.fromString(resultSet.getString("cart_id")),
-            resultSet.getString("payment_method"),
+            PaymentMethod.valueOf(resultSet.getString("payment_method")),
             PaymentStatus.valueOf(resultSet.getString("payment_status")),
             resultSet.getObject("created_at", LocalDateTime.class)
         );

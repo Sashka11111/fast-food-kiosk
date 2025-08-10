@@ -179,7 +179,7 @@ public class CartController {
         }
 
         if (cartItems == null || cartItems.isEmpty()) {
-            AlertController.showAlert("Кошик порожній\n\nДодайте страви до кошика перед оформленням замовлення.");
+            AlertController.showAlert("Кошик порожній. Додайте страви до кошика перед оформленням замовлення.");
             return;
         }
 
@@ -227,7 +227,7 @@ public class CartController {
                 Payment payment = new Payment(
                     null,
                     cartItem.cartId(),
-                    selectedPaymentMethod.getLabel(),
+                    selectedPaymentMethod,
                     PaymentStatus.PENDING,
                     LocalDateTime.now()
                 );

@@ -25,7 +25,9 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javax.sql.DataSource;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -142,10 +144,44 @@ public class MenuController {
         imageView.setPreserveRatio(true);
         imageView.setSmooth(true);
 
-        Image image;
         if (imagePath != null && !imagePath.trim().isEmpty()) {
-            image = imageCache.computeIfAbsent(imagePath, path -> new Image(getClass().getResourceAsStream(path), 0, 0, true, true));
-            if (!image.isError()) {
+            loadCategoryImage(imageView, imagePath, categoryName);
+        } else {
+            setDefaultCategoryImage(imageView, categoryName);
+        }
+
+        return imageView;
+    }
+
+    private void loadCategoryImage(ImageView imageView, String imagePath, String categoryName) {
+        if (imagePath != null && !imagePath.trim().isEmpty()) {
+            Image image = imageCache.computeIfAbsent(imagePath, path -> {
+                try {
+                    if (path.startsWith("/images/categories/")) {
+                        InputStream inputStream = getClass().getResourceAsStream(path);
+                        if (inputStream == null) {
+                            System.err.println("Resource not found: " + path);
+                            return null;
+                        }
+                        Image resourceImage = new Image(inputStream, 0, 0, true, true);
+                        if (!resourceImage.isError()) {
+                            return resourceImage;
+                        }
+                    }
+                    File file = new File(path);
+                    if (file.exists() && file.isFile()) {
+                        return new Image("file:" + path, 0, 0, true, true);
+                    } else {
+                        System.err.println("File not found or inaccessible: " + path);
+                        return null;
+                    }
+                } catch (Exception e) {
+                    System.err.println("Помилка завантаження зображення з шляху: " + path + ", error: " + e.getMessage());
+                    return null;
+                }
+            });
+
+            if (image != null && !image.isError()) {
                 imageView.setImage(image);
             } else {
                 System.err.println("Помилка завантаження зображення для категорії: " + categoryName + " з шляху: " + imagePath);
@@ -154,17 +190,38 @@ public class MenuController {
         } else {
             setDefaultCategoryImage(imageView, categoryName);
         }
-
-        return imageView;
     }
 
     private void setDefaultCategoryImage(ImageView imageView, String categoryName) {
         String defaultImagePath = "/images/categories/category.png";
-        Image defaultImage = imageCache.computeIfAbsent(defaultImagePath, path -> new Image(getClass().getResourceAsStream(path), 0, 0, true, true));
-        if (!defaultImage.isError()) {
-            imageView.setImage(defaultImage);
-        } else {
-            System.err.println("Помилка завантаження дефолтного зображення для категорії: " + categoryName);
+        try {
+            Image defaultImage = imageCache.computeIfAbsent(defaultImagePath, path -> {
+                try {
+                    InputStream inputStream = getClass().getResourceAsStream(path);
+                    if (inputStream == null) {
+                        System.err.println("Default image resource not found: " + path);
+                        return null;
+                    }
+                    Image image = new Image(inputStream, 0, 0, true, true);
+                    if (image.isError()) {
+                        throw new IllegalStateException("Default image is invalid: " + path);
+                    }
+                    return image;
+                } catch (Exception e) {
+                    System.err.println("Помилка завантаження зображення за замовчуванням: " + path + ", error: " + e.getMessage());
+                    return null;
+                }
+            });
+
+            if (defaultImage != null && !defaultImage.isError()) {
+                imageView.setImage(defaultImage);
+            } else {
+                System.err.println("Помилка завантаження дефолтного зображення для категорії: " + categoryName);
+                imageView.setImage(null);
+            }
+        } catch (Exception e) {
+            System.err.println("Критична помилка при завантаженні дефолтного зображення: " + e.getMessage());
+            imageView.setImage(null);
         }
     }
 

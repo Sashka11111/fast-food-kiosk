@@ -115,6 +115,49 @@
   -fx-effect: dropshadow(gaussian, rgba(176, 58, 46, 0.2), 5, 0.2, 0, 2);
 }
 
+.details-button {
+  -fx-background-color: #e47d7e;
+  -fx-text-fill: white;
+  -fx-background-radius: 25;
+  -fx-cursor: hand;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.3, 0, 2);
+}
+
+.details-button:hover {
+  -fx-background-color: #d65f60;
+  -fx-effect: dropshadow(gaussian, rgba(211, 84, 0, 0.3), 8, 0.4, 0, 3);
+}
+
+.details-button:pressed {
+  -fx-background-color: #d65f60;
+  -fx-effect: dropshadow(gaussian, rgba(176, 58, 46, 0.2), 5, 0.2, 0, 2);
+}
+
+.cancel-button {
+  -fx-background-color: #dc3545;
+  -fx-text-fill: white;
+  -fx-background-radius: 25;
+  -fx-cursor: hand;
+  -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.2), 5, 0.3, 0, 2);
+}
+
+.cancel-button:hover {
+  -fx-background-color: #c82333;
+  -fx-effect: dropshadow(gaussian, rgba(200, 35, 51, 0.3), 8, 0.4, 0, 3);
+}
+
+.cancel-button:pressed {
+  -fx-background-color: #bd2130;
+  -fx-effect: dropshadow(gaussian, rgba(189, 33, 48, 0.2), 5, 0.2, 0, 2);
+}
+
+.cancel-button:disabled {
+  -fx-background-color: #6c757d;
+  -fx-text-fill: #adb5bd;
+  -fx-cursor: default;
+  -fx-effect: none;
+}
+
 .progress-indicator .percentage {
   -fx-fill: #e47d7e;
 }
@@ -126,4 +169,48 @@
 .progress-indicator {
   -fx-outer-border: transparent;
   -fx-progress-color: #e47d7e;
+}
+
+
+.table {
+  -fx-border-color: #e0e0e0;
+  -fx-border-width: 1px;
+  -fx-font-size: 14px;
+  -fx-font-family: "Arial";
+}
+
+.table .column-header-background {
+  -fx-background-color: #e47d7e;
+  -fx-border-color: #e0e0e0;
+  -fx-border-width: 0 0 1px 0;
+}
+
+.table .column-header .label {
+  -fx-font-weight: bold;
+  -fx-alignment: CENTER;
+}
+
+.table .table-row-cell {
+  -fx-border-color: #e0e0e0;
+  -fx-border-width: 0 0 1px 0;
+  -fx-alignment: CENTER;
+}
+
+.table .table-row-cell:hover {
+  -fx-background-color: #f0f0f0;
+}
+
+.table .table-row-cell:selected {
+  -fx-background-color: #e47d7e;
+  -fx-text-fill: #ffffff;
+}
+
+.table .table-cell {
+  -fx-alignment: CENTER;
+}
+
+.search {
+  -fx-background-color: transparent;
+  -fx-border-color: #000000;
+  -fx-border-width: 0px 0px .4px 0px;
 }

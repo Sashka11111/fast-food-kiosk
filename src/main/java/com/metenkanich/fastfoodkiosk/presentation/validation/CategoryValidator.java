@@ -54,18 +54,15 @@ public class CategoryValidator {
 
     List<String> errors = new ArrayList<>();
     try {
-      // Спробуємо знайти категорію з такою ж назвою
       Category existingCategory = null;
       try {
         existingCategory = repository.findByName(name);
       } catch (Exception e) {
-        // Якщо категорію не знайдено, це нормально для нової категорії
         if (!e.getMessage().contains("не знайдено")) {
-          throw e; // Перекидаємо інші помилки
+          throw e;
         }
       }
 
-      // Перевіряємо, чи знайдена категорія не є тією самою, що ми редагуємо
       if (existingCategory != null) {
         if (categoryId == null || !existingCategory.categoryId().equals(categoryId)) {
           errors.add("Назва \"" + name + "\" вже використовується іншою категорією");
@@ -73,7 +70,6 @@ public class CategoryValidator {
         }
       }
     } catch (Exception e) {
-      // Якщо виникла помилка при пошуку, але не "не знайдено"
       errors.add("Помилка перевірки унікальності назви: " + e.getMessage());
       return new ValidationResult(false, errors);
     }
@@ -95,9 +91,9 @@ public class CategoryValidator {
       errors.add("Шлях до зображення не може перевищувати " + MAX_IMAGE_PATH_LENGTH + " символів");
     }
 
-    // Перевірка формату шляху (повинен бути відносним шляхом до файлу зображення)
+    // Перевірка формату файлу зображення
     if (!isValidImagePath(imagePath)) {
-      errors.add("Шлях до зображення повинен мати формат '/images/categories/filename.ext' та підтримувані розширення: .jpg, .jpeg, .png, .gif, .bmp");
+      errors.add("Шлях до зображення повинен бути файлом із розширенням: .jpg, .jpeg, .png, .gif, .bmp");
     }
 
     return new ValidationResult(errors.isEmpty(), errors);
@@ -109,18 +105,13 @@ public class CategoryValidator {
       return false;
     }
 
-    // Перевірка, що шлях починається з /images/categories/
-    if (!imagePath.startsWith("/images/categories/")) {
-      return false;
-    }
-
     // Перевірка розширення файлу
     String lowerPath = imagePath.toLowerCase();
     return lowerPath.endsWith(".jpg") ||
-           lowerPath.endsWith(".jpeg") ||
-           lowerPath.endsWith(".png") ||
-           lowerPath.endsWith(".gif") ||
-           lowerPath.endsWith(".bmp");
+        lowerPath.endsWith(".jpeg") ||
+        lowerPath.endsWith(".png") ||
+        lowerPath.endsWith(".gif") ||
+        lowerPath.endsWith(".bmp");
   }
 
   // Повна валідація об'єкта Category
@@ -157,7 +148,6 @@ public class CategoryValidator {
       errors.addAll(imageResult.getErrors());
     }
 
-    // Повернення результату валідації
     return new ValidationResult(errors.isEmpty(), errors);
   }
 }

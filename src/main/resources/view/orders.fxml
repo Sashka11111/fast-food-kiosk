@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+
+<AnchorPane prefHeight="720.0" prefWidth="1000.0" stylesheets="@../design/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.metenkanich.fastfoodkiosk.presentation.controller.OrdersController">
+
+  <padding>
+    <Insets bottom="10" left="10" right="10" top="10" />
+  </padding>
+
+  <!-- Пошук і фільтр -->
+  <HBox alignment="CENTER" layoutX="167.0" layoutY="20.0" spacing="10.0">
+      <ImageView fitHeight="25.0" fitWidth="25.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@../images/search.png" />
+         </image>
+      </ImageView>
+    <TextField fx:id="searchTextField" prefHeight="30.0" prefWidth="398.0" promptText="Пошук..." styleClass="search" stylesheets="@../design/style.css">
+      <font><Font size="14.0" /></font>
+    </TextField>
+    <Label styleClass="label" stylesheets="@../design/style.css" text="Фільтрація">
+      <font>
+            <Font size="14.0" />
+         </font>
+    </Label>
+    <ComboBox fx:id="statusComboBox" prefHeight="42.0" prefWidth="200.0" promptText="Статус" styleClass="text-fields" stylesheets="@../design/style.css" />
+  </HBox>
+
+  <!-- Таблиця -->
+  <TableView fx:id="ordersTableView" layoutX="62.0" layoutY="216.0" prefHeight="489.0" prefWidth="876.0" styleClass="table" stylesheets="@../design/style.css" tableMenuButtonVisible="true">
+    <columns>
+      <TableColumn fx:id="userIdColumn" prefWidth="211.20004272460938" text="Користувач" />
+      <TableColumn fx:id="totalPriceColumn" prefWidth="160.79998779296875" text="Сума" />
+      <TableColumn fx:id="statusColumn" prefWidth="164.0" text="Статус" />
+      <TableColumn fx:id="createdAtColumn" prefWidth="156.00006103515625" text="Дата створення" />
+      <TableColumn fx:id="detailsColumn" prefWidth="152.800048828125" text="Дії" />
+    </columns>
+    <placeholder>
+      <Label styleClass="label" stylesheets="@../design/style.css" text="Немає замовлень" />
+    </placeholder>
+  </TableView>
+
+  <!-- Поля вводу -->
+  <VBox layoutX="202.0" layoutY="84.0" prefHeight="109.0" prefWidth="350.0" spacing="10">
+    <HBox alignment="CENTER_LEFT" spacing="10" />
+    <HBox alignment="CENTER_LEFT" prefHeight="42.0" prefWidth="363.0" spacing="10">
+      <Label styleClass="label" stylesheets="@../design/style.css" text="Статус:">
+        <font><Font size="14.0" /></font>
+      </Label>
+      <ComboBox fx:id="editStatusComboBox" prefHeight="43.0" prefWidth="196.0" promptText="Виберіть статус" styleClass="text-fields" stylesheets="@../design/style.css" />
+    </HBox>
+
+    <!-- Кнопки -->
+    <HBox alignment="CENTER" prefHeight="40.0" prefWidth="406.0" spacing="10">
+      <Button fx:id="editButton" disable="true" prefHeight="40.0" prefWidth="100.0" styleClass="side-btn" stylesheets="@../design/style.css" text="Редагувати">
+        <font><Font size="14.0" /></font>
+      </Button>
+      <Button fx:id="deleteButton" disable="true" prefHeight="40.0" prefWidth="100.0" styleClass="side-btn" stylesheets="@../design/style.css" text="Видалити">
+        <font><Font size="14.0" /></font>
+      </Button>
+      <Button fx:id="clearFieldsButton" prefHeight="40.0" prefWidth="100.0" styleClass="side-btn" stylesheets="@../design/style.css" text="Очистити">
+        <font><Font size="14.0" /></font>
+      </Button>
+    </HBox>
+  </VBox>
+ </AnchorPane>

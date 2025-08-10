@@ -11,13 +11,12 @@ public class DatabaseConnection {
   private static HikariDataSource dataSource;
 
   private DatabaseConnection() {
-    // Приватний конструктор для Singleton
   }
 
   public static synchronized DatabaseConnection getInstance() {
     if (instance == null) {
       instance = new DatabaseConnection();
-      initializeDataSource(); // Ініціалізуємо одразу
+      initializeDataSource();
     }
     return instance;
   }

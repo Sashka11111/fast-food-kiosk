@@ -46,7 +46,6 @@ public class MenuItemCardController {
     private CartRepositoryImpl cartRepository;
 
     public MenuItemCardController() {
-        // Використовуємо Singleton для отримання одного DataSource
         this.cartRepository = new CartRepositoryImpl(DatabaseConnection.getInstance().getDataSource());
     }
 
@@ -67,7 +66,6 @@ public class MenuItemCardController {
     public void setMenuItem(MenuItem menuItem) {
         this.currentMenuItem = menuItem;
 
-        // Ініціалізація репозиторію (якщо потрібно)
         if (cartRepository == null) {
             cartRepository = new CartRepositoryImpl(DatabaseConnection.getInstance().getDataSource());
         }
@@ -85,7 +83,6 @@ public class MenuItemCardController {
         PortionSize defaultSize = menuItem.defaultPortionSize() != null ? menuItem.defaultPortionSize() : PortionSize.MEDIUM;
         portionSizeComboBox.setValue(defaultSize);
 
-        // Налаштування відображення розмірів у ComboBox
         portionSizeComboBox.setCellFactory(listView -> new javafx.scene.control.ListCell<PortionSize>() {
             @Override
             protected void updateItem(PortionSize item, boolean empty) {
@@ -110,24 +107,18 @@ public class MenuItemCardController {
             }
         });
 
-        // Оновлення ціни при зміні розміру порції
         portionSizeComboBox.setOnAction(event -> updatePrice());
 
-        // Початкове встановлення ціни
         updatePrice();
 
-        // Встановлення зображення
         setItemImage(menuItem.imagePath(), menuItem.name());
 
-        // Встановлення статусу доступності
         if (menuItem.isAvailable() != null && menuItem.isAvailable()) {
-            // Видаляємо клас недоступності, якщо він був
             itemName.getParent().getStyleClass().remove("unavailable");
             addToCartButton.setDisable(false);
             portionSizeComboBox.setDisable(false);
             quantity.setDisable(false);
         } else {
-            // Додаємо клас недоступності до основного контейнера карточки
             if (!itemName.getParent().getStyleClass().contains("unavailable")) {
                 itemName.getParent().getStyleClass().add("unavailable");
             }
@@ -136,28 +127,42 @@ public class MenuItemCardController {
             quantity.setDisable(true);
         }
 
-        // Логіка додавання до кошика
         addToCartButton.setOnAction(event -> {
             addToCart();
         });
     }
 
-// In MenuItemCardController.java
-
     private void setItemImage(String imagePath, String itemName) {
         if (imagePath != null && !imagePath.trim().isEmpty()) {
             try {
-                // Use the Image constructor with backgroundLoading=true
-                Image image = new Image(getClass().getResource(imagePath).toExternalForm(), true);
-                itemImage.setImage(image);
+                java.net.URL resourceUrl = getClass().getResource(imagePath);
+                if (resourceUrl != null) {
+                    Image image = new Image(resourceUrl.toExternalForm(), true);
+                    itemImage.setImage(image);
 
-                // Add a listener to handle potential loading errors
-                image.errorProperty().addListener((obs, oldError, newError) -> {
-                    if (newError) {
-                        System.err.println("Помилка фонового завантаження зображення для страви: " + itemName + " з шляху: " + imagePath);
+                    image.errorProperty().addListener((obs, oldError, newError) -> {
+                        if (newError) {
+                            System.err.println("Помилка фонового завантаження зображення для страви: " + itemName + " з шляху: " + imagePath);
+                            setDefaultItemImage(itemName);
+                        }
+                    });
+                } else {
+                    java.io.File imageFile = new java.io.File(imagePath);
+                    if (imageFile.exists() && imageFile.isFile()) {
+                        Image image = new Image(imageFile.toURI().toString(), true);
+                        itemImage.setImage(image);
+
+                        image.errorProperty().addListener((obs, oldError, newError) -> {
+                            if (newError) {
+                                System.err.println("Помилка фонового завантаження зображення файлу для страви: " + itemName + " з шляху: " + imagePath);
+                                setDefaultItemImage(itemName);
+                            }
+                        });
+                    } else {
+                        System.err.println("Зображення не знайдено ні як ресурс, ні як файл: " + imagePath + " для страви: " + itemName);
                         setDefaultItemImage(itemName);
                     }
-                });
+                }
             } catch (Exception e) {
                 System.err.println("Помилка створення шляху до зображення: " + itemName + " з шляху: " + imagePath + ": " + e.getMessage());
                 setDefaultItemImage(itemName);
@@ -170,16 +175,22 @@ public class MenuItemCardController {
     private void setDefaultItemImage(String itemName) {
         try {
             String defaultImagePath = "/images/fast-food.jpg";
-            // Load the default image in the background as well
-            Image defaultImage = new Image(getClass().getResource(defaultImagePath).toExternalForm(), true);
-            itemImage.setImage(defaultImage);
+            // Перевіряємо, чи існує ресурс перед використанням
+            java.net.URL resourceUrl = getClass().getResource(defaultImagePath);
+            if (resourceUrl != null) {
+                Image defaultImage = new Image(resourceUrl.toExternalForm(), true);
+                itemImage.setImage(defaultImage);
 
-            defaultImage.errorProperty().addListener((obs, oldError, newError) -> {
-                if (newError) {
-                    System.err.println("Помилка фонового завантаження дефолтного зображення для страви: " + itemName);
-                    itemImage.setImage(null);
-                }
-            });
+                defaultImage.errorProperty().addListener((obs, oldError, newError) -> {
+                    if (newError) {
+                        System.err.println("Помилка фонового завантаження дефолтного зображення для страви: " + itemName);
+                        itemImage.setImage(null);
+                    }
+                });
+            } else {
+                System.err.println("Дефолтне зображення не знайдено: " + defaultImagePath + " для страви: " + itemName);
+                itemImage.setImage(null);
+            }
         } catch (Exception e) {
             System.err.println("Помилка створення шляху до дефолтного зображення: " + itemName + ": " + e.getMessage());
             itemImage.setImage(null);
@@ -230,7 +241,6 @@ public class MenuItemCardController {
             return;
         }
 
-        // Перевіряємо чи товар вже є в кошику
         if (cartRepository.existsByUserIdAndItemId(currentUser.id(), currentMenuItem.itemId())) {
             AlertController.showAlert("Цей товар вже є у вашому кошику");
             return;

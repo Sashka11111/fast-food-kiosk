@@ -42,6 +42,66 @@
                   </ImageView>
                </graphic>
             </Button>
+            <Button fx:id="menuItemsButton" graphicTextGap="8.0" layoutY="306.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Продукти">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/foods.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="categoryButton" graphicTextGap="8.0" layoutY="364.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Категорії">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/category.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="usersButton" graphicTextGap="8.0" layoutY="418.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Користувачі">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/users.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="ordersButton" graphicTextGap="8.0" layoutY="248.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Всі замовлення">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/orders.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
+            <Button fx:id="paymentButton" graphicTextGap="8.0" layoutY="476.0" mnemonicParsing="false" prefHeight="58.0" prefWidth="220.0" styleClass="menu-button" stylesheets="@../design/style.css" text="Платежі">
+               <font>
+                  <Font size="18.0" />
+               </font>
+               <graphic>
+                  <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                     <image>
+                        <Image url="@../images/payment.png" />
+                     </image>
+                  </ImageView>
+               </graphic>
+            </Button>
       </children>
     </AnchorPane>
     <AnchorPane layoutX="5.0" layoutY="5.0" prefHeight="50.0" prefWidth="1270.0" styleClass="side-menu" stylesheets="@../design/style.css">

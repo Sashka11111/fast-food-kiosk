@@ -6,6 +6,8 @@ import com.metenkanich.fastfoodkiosk.persistence.entity.enums.Role;
 import com.metenkanich.fastfoodkiosk.persistence.repository.contract.UserRepository;
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -18,6 +20,7 @@ import java.util.UUID;
 
 public class UserRepositoryImpl implements UserRepository {
   private final DataSource dataSource;
+  private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
   public UserRepositoryImpl(DataSource dataSource) {
     this.dataSource = dataSource;
   }
@@ -144,8 +147,18 @@ public class UserRepositoryImpl implements UserRepository {
   }
 
   private User mapToUser(ResultSet resultSet) throws SQLException {
-    LocalDateTime createdAt = resultSet.getTimestamp("created_at").toLocalDateTime();
+    String createdAtStr = resultSet.getString("created_at");
+    LocalDateTime createdAt;
 
+    try {
+      createdAt = LocalDateTime.parse(createdAtStr, DATE_TIME_FORMATTER);
+    } catch (DateTimeParseException e) {
+      try {
+        createdAt = LocalDateTime.parse(createdAtStr);
+      } catch (DateTimeParseException e2) {
+        createdAt = LocalDateTime.now();
+       }
+    }
     return new User(
         UUID.fromString(resultSet.getString("user_id")),
         resultSet.getString("username"),

@@ -1,5 +1,8 @@
 package com.metenkanich.fastfoodkiosk.presentation.controller;
 
+import com.metenkanich.fastfoodkiosk.domain.security.AuthenticatedUser;
+import com.metenkanich.fastfoodkiosk.persistence.entity.User;
+import com.metenkanich.fastfoodkiosk.persistence.entity.enums.Role;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -28,6 +31,21 @@ public class MainMenuController {
     private Button minimazeButton;
 
     @FXML
+    private Button usersButton;
+
+    @FXML
+    private Button paymentButton;
+
+    @FXML
+    private Button categoryButton;
+
+    @FXML
+    private Button menuItemsButton;
+
+    @FXML
+    private Button ordersButton;
+
+    @FXML
     private Button cartButton;
 
     @FXML
@@ -42,11 +60,25 @@ public class MainMenuController {
         minimazeButton.setOnAction(event -> minimizeWindow());
         cartButton.setOnAction(event -> showCartPage());
         menuButton.setOnAction(event -> showMenuPage());
+        usersButton.setOnAction(event -> showUsersPage());
+        paymentButton.setOnAction(event -> showPaymentPage());
+        categoryButton.setOnAction(event -> showCategoryPage());
+        menuItemsButton.setOnAction(event -> showMenuItemsPage());
+        ordersButton.setOnAction(event -> showOrdersPage());
         showMenu();
         Platform.runLater(() -> {
             Stage primaryStage = (Stage) contentArea.getScene().getWindow();
             addDragListeners(primaryStage.getScene().getRoot());
         });
+        User currentUser = AuthenticatedUser.getInstance().getCurrentUser();
+
+        if (currentUser.role() != Role.ADMIN) {
+            usersButton.setVisible(false);
+            categoryButton.setVisible(false);
+            menuItemsButton.setVisible(false);
+            ordersButton.setVisible(false);
+            paymentButton.setVisible(false);
+        }
     }
 
     private void moveStackPane(Button button) {
@@ -76,6 +108,30 @@ public class MainMenuController {
     private void showCartPage() {
         moveStackPane(cartButton);
         loadFXML("/view/cart.fxml");
+    }
+
+    private void showUsersPage() {
+        moveStackPane(usersButton);
+        loadFXML("/view/user_management.fxml");
+    }
+
+    private void showPaymentPage() {
+        moveStackPane(paymentButton);
+        loadFXML("/view/payment.fxml");
+    }
+
+    private void showCategoryPage() {
+        moveStackPane(categoryButton);
+        loadFXML("/view/category.fxml");
+    }
+
+    private void showMenuItemsPage() {
+        moveStackPane(menuItemsButton);
+        loadFXML("/view/menu_item.fxml");
+    }
+    private void showOrdersPage() {
+        moveStackPane(ordersButton);
+        loadFXML("/view/orders.fxml");
     }
 
     private void showMenu() {
