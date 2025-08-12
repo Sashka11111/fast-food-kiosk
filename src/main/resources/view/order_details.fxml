@@ -11,11 +11,6 @@
 
 <AnchorPane prefHeight="400.0" prefWidth="500.0" styleClass="order-details-pane" stylesheets="@../design/style.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.metenkanich.fastfoodkiosk.presentation.controller.OrderDetailsController">
   <VBox layoutX="20.0" layoutY="20.0" spacing="8.0" AnchorPane.LeftAnchor="20.0" AnchorPane.RightAnchor="20.0" AnchorPane.TopAnchor="20.0">
-    <Label fx:id="orderIdLabel" text="ID замовлення:">
-      <font>
-        <Font name="System Bold" size="14.0" />
-      </font>
-    </Label>
     <Label fx:id="userIdLabel" text="Користувач:">
       <font>
         <Font size="13.0" />

@@ -205,7 +205,7 @@ public class UserManagementController {
             clearFields();
             AlertController.showAlert("Користувача успішно додано!");
         } catch (Exception e) {
-            AlertController.showAlert("Помилка при додаванні користувача: " + e.getMessage());
+            AlertController.showAlert("Помилка при додаванні користувача");
         }
     }
 
