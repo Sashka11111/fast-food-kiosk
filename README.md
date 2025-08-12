@@ -76,6 +76,7 @@ The system uses a normalized SQLite database with the following tables:
 - **Payments**: Payment transaction records
 
 ![Database Entity Relationship Diagram](github/1.png)
+
 *Figure 1: Database Entity Relationship Diagram*
 
 ## 🏗️ Architecture
